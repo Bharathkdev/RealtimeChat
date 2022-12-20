@@ -9,7 +9,7 @@ const App = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const [messageCount, setMessageCount] = useState(0);
+  const [newMessageCount, setNewMessageCount] = useState(0);
   const [customerName, setCustomerName] = useState('');
   const [mobileContact, setMobileContact] = useState('');
   const [items, setItems] = useState('');
@@ -25,15 +25,8 @@ const App = () => {
   useEffect(() => {
     if(isModalVisible) {
      input.current.focus();
-     setMessageCount(messages.length);
     }
   }, [isModalVisible]);
-
-  useEffect(() => {
-    if(!isModalVisible) {
-      setMessageCount(messages.length);
-    }
-  }, [messages, isModalVisible]);
 
   const handleNewMessage = () => {
     if(isModalVisible) {
@@ -43,6 +36,7 @@ const App = () => {
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
+    setNewMessageCount(0);
   };
 
   const handleMessage = (e) => {
@@ -111,7 +105,7 @@ const App = () => {
       <View style = {{margin: 20}}>
         <Button title="Open Chat" onPress={toggleModal} />
       </View>
-      <Text>Message Count: {messageCount}</Text>
+      <Text>Message Count: {newMessageCount}</Text>
       <Modal 
         isVisible={isModalVisible} 
         backdropTransitionOutTiming={0}
@@ -174,6 +168,9 @@ const App = () => {
         onMessage={(event) => {
           console.log("Message event: ", JSON.parse(event.data), messages); 
           setMessages([...messages, JSON.parse(event.data)]);
+          if(!isModalVisible) {
+            setNewMessageCount(newMessageCount + 1);
+          }
           handleNewMessage();
         }
         }
