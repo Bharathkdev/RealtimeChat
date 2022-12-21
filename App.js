@@ -9,6 +9,7 @@ import { moderateScale } from 'react-native-size-matters';
 import { Label } from './src/common/components/Label';
 import { CustomButton } from './src/common/components/CustomButton';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import ChatIcon from 'react-native-vector-icons/Fontisto';
 
 const styles = StyleSheet.create({
   containerStyle: {
@@ -19,6 +20,38 @@ const styles = StyleSheet.create({
   },
   textInputViewStyle: {
     marginBottom: moderateScale(18),
+  },
+  iconContainerStyle: {
+    padding: moderateScale(10),
+    alignItems: 'flex-end',
+    
+  },
+  badgeViewStyle:{
+    position: "absolute",
+    minHeight:moderateScale(32),
+    minWidth:moderateScale(32),
+    borderRadius: moderateScale(16),
+    borderWidth: moderateScale(2),
+    borderColor: "#4AADE8",
+    backgroundColor: "#FFFFFF",
+    justifyContent: 'center',
+    alignItems: 'center',
+    right: moderateScale(-15),
+    top: moderateScale(-15),
+  },
+  iconStyle: {
+    padding: moderateScale(10),
+    borderRadius: moderateScale(10),
+    backgroundColor: '#F3FAFF',
+    shadowColor: "#000",
+    shadowOffset: {
+    	width: 0,
+    	height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
   },
   modal: {
     flex: 1,
@@ -137,6 +170,7 @@ export default App = () => {
   const ws = useRef(null);
   const input = useRef(null);
   const listRef = useRef(null);
+  const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
 
 
   const deviceId = DeviceInfo.getUniqueId()._j;
@@ -275,8 +309,8 @@ export default App = () => {
 
   return (
     <View style={styles.containerStyle}>
-      <Label title={'Place your Order'} />
-     <View>
+      <Label title={'Place your Order'} labelStyle = {{fontWeight: '600'}}/>
+      <View>
         <TextInputWithLabel
           label="Customer Name"
           value={customerName}
@@ -306,19 +340,26 @@ export default App = () => {
           viewStyle={styles.textInputViewStyle}
 
         />
-      <View style = {{margin: 20}}>
-        <CustomButton 
-          title="Place order" 
-          onPress={placeOrder.bind(this, customerName, phoneNumber, items, deliveryDate)} 
-        />
-      </View>
-
-      </View>
-      <View style = {{margin: 20}}>
-      <CustomButton 
-          title="Open Chat" 
-          onPress={toggleModal} 
-        />
+        <View style = {{margin: 20}}>
+          <CustomButton 
+            title="Place order" 
+            onPress={placeOrder.bind(this, customerName, phoneNumber, items, deliveryDate)} 
+          />
+        </View>
+        <View style={styles.iconContainerStyle}>
+          <TouchableOpacity 
+            onPress={toggleModal}
+            activeOpacity = {1}
+          >
+            <ChatIcon name="hipchat" color='#4AADE8' size={45} style={styles.iconStyle}/>
+            {
+              newMessageCount !== 0 &&
+              <View style = {styles.badgeViewStyle}>
+                <Label title = {newMessageBadgeCount} labelStyle = {{fontSize: moderateScale(14)}}/>
+              </View>
+            }
+          </TouchableOpacity>
+        </View>
       </View>
       <Text>Message Count: {newMessageCount}</Text>
       <Modal 
