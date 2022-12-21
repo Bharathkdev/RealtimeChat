@@ -23,9 +23,9 @@ export const CustomButton = (props) => {
   return (
     <TouchableOpacity
       style = {[styles.buttonStyle, props.buttonStyle]}
-      onPress = {() => {
-        onPress();
-      }}>
+      onPress = {props.onPress}
+      disabled = {props.disableButton}
+    >
       <Text style={[styles.textStyle, props.textStyle]}>{props.title}</Text>
     </TouchableOpacity>
   );
