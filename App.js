@@ -114,6 +114,11 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     fontWeight: 'bold',
+  },
+  filterLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'black',
+    borderBottomStyle: 'solid'
   }
 });
 
@@ -137,7 +142,6 @@ export default App = () => {
   const ws = useRef(null);
   const input = useRef(null);
   const listRef = useRef(null);
-
 
   const deviceId = DeviceInfo.getUniqueId()._j;
   const MOBILE_NUMBER_REGEX = /^\d{10}$/;
@@ -339,24 +343,16 @@ export default App = () => {
                 style={styles.filterModal}
                 visible={isFilterModalVisible}
                 onBackdropPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
+                  <TouchableOpacity style={{backgroundColor: filterOption === 'all' ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions('all')}>
+                    <Text style = {styles.filterOptions}>All</Text>
+                    <View style={styles.filterLine}></View>
+                  </TouchableOpacity>
                   <TouchableOpacity style={{backgroundColor: filterOption === 'order' ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions('order')}>
                     <Text style = {styles.filterOptions}>Orders</Text>
-                    <View style={{
-                      borderBottomWidth: 1,
-                      borderBottomColor: 'black',
-                      borderBottomStyle: 'solid',
-                    }}></View>
+                    <View style={styles.filterLine}></View>
                   </TouchableOpacity>
                   <TouchableOpacity style={{backgroundColor: filterOption === 'message' ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions('message')}>
                     <Text style = {styles.filterOptions}>Messages</Text>
-                    <View style={{
-                      borderBottomWidth: 1,
-                      borderBottomColor: 'black',
-                      borderBottomStyle: 'solid',
-                    }}></View>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={{backgroundColor: filterOption === 'all' ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions('all')}>
-                    <Text style = {styles.filterOptions}>All</Text>
                   </TouchableOpacity>
               </Modal>
               <TouchableOpacity style = {{marginLeft: 20}} onPress={searchBarHandler}>
@@ -364,6 +360,7 @@ export default App = () => {
               </TouchableOpacity> 
               {isSearchBarVisible ? <View style={styles.searchBar}>
                 <TextInput
+                  autoFocus
                   value={searchInput}
                   onChangeText={setSearchInput}
                   placeholder="Search"
@@ -393,7 +390,7 @@ export default App = () => {
                     <Text style = {styles.messageNameText}>{(item.name && item.deviceId !== deviceId) ? item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name : (item.deviceId === deviceId) ? 'You' : 'Anonymous'}</Text>
                     <Text>{item.time}</Text>
                   </View>
-                  {item.name ? 
+                  {item.type === 'order' ? 
                       <>
                         <Text style = {styles.orderDetailsHeaderText}>{item.name} order details:</Text>
                         <Text style = {styles.messageText}>
@@ -427,7 +424,7 @@ export default App = () => {
         </Animated.View>
         </View>
             <View style = {styles.modalFooter}>
-              <TextInput ref={input} onTouchStart = {filteredData.length > 0 ? fadeIn : null} style = {styles.messageInput} placeholder="Type your message here..." value={message} onChange={handleMessage} />
+              <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder="Type your message here..." value={message} onChange={handleMessage} />
               <TouchableOpacity disabled={message ? false : true} style = {{opacity: message ? 1 : 0.3}} onPress={sendMessage}>
                 <Icon name="send" color="black" size={25}/>
               </TouchableOpacity>
