@@ -6,7 +6,6 @@ const styles = StyleSheet.create({
     labelStyle: {
         alignSelf: 'center',
         fontSize: moderateScale(22),
-        fontWeight: '600',
         color: '#000000'
     }
 });
