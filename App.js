@@ -125,7 +125,7 @@ export default App = () => {
   const [searchInput, setSearchInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const [messageCount, setMessageCount] = useState(0);
+  const [newMessageCount, setNewMessageCount] = useState(0);
   const [customerName, setCustomerName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [items, setItems] = useState('');
@@ -202,12 +202,6 @@ export default App = () => {
     setHasDataLongerThanScreen(hasDataLongerThanScreen);
   };
 
-  useEffect(() => {
-    if(!isModalVisible) {
-      setMessageCount(messages.length);
-    }
-  }, [messages, isModalVisible]);
-
   const handleNewMessage = () => {
     if(isModalVisible) {
       setTimeout(() => listRef?.current?.scrollToEnd({ animated: true }), 500);
@@ -282,7 +276,7 @@ export default App = () => {
   return (
     <View style={styles.containerStyle}>
       <Label title={'Place your Order'} />
-      <View>
+     <View>
         <TextInputWithLabel
           label="Customer Name"
           value={customerName}
@@ -326,7 +320,7 @@ export default App = () => {
           onPress={toggleModal} 
         />
       </View>
-      <Text>Message Count: {messageCount}</Text>
+      <Text>Message Count: {newMessageCount}</Text>
       <Modal 
         isVisible={isModalVisible} 
         backdropTransitionOutTiming={0}
@@ -446,6 +440,9 @@ export default App = () => {
         onMessage={(event) => {
           console.log("Message event: ", JSON.parse(event.data), messages); 
           setMessages([...messages, JSON.parse(event.data)]);
+          if(!isModalVisible) {
+            setNewMessageCount(newMessageCount + 1);
+          }
           handleNewMessage();
         }
         }
