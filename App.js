@@ -1,17 +1,89 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, TextInput, Button, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {useState, useRef, useEffect } from 'react';
+import {View, TextInput, Button, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import Modal from 'react-native-modal';
 import Icon from 'react-native-vector-icons/Ionicons'
 import WebSocket from 'react-native-websocket';
 import DeviceInfo from 'react-native-device-info';
+import {TextInputWithLabel} from './src/common/components/TextInputWithLabel';
+import { moderateScale } from 'react-native-size-matters';
+import { Label } from './src/common/components/Label';
+import { CustomButton } from './src/common/components/CustomButton';
+
+const styles = StyleSheet.create({
+  containerStyle: {
+    flex: 1,
+    backgroundColor: '#F3FAFF',
+    padding: moderateScale(30),
+    justifyContent: 'space-between'
+  },
+  textInputViewStyle: {
+    marginBottom: moderateScale(18),
+  },
+  modal: {
+    flex: 1,
+    backgroundColor: 'lightblue',
+    borderRadius: 10,
+    overflow: 'hidden',
+    padding: 16
+  },
+  closeButton: {
+    padding: 8
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  messageInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    marginRight: 10,
+    backgroundColor: 'white',
+  },
+  list: {
+    flex: 1,
+    marginVertical: 20,
+  },
+  messageView: {
+    padding: 10, 
+    borderRadius: 10,
+    marginBottom: 15,
+    justifyContent: 'flex-end',
+  },
+  messageText: {
+    color: 'black',
+    fontSize: 15
+  },
+  orderDetailsHeaderText: {
+    fontWeight: 'bold',
+  },
+  messageHeaderView: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  messageNameText: {
+    color: 'green', 
+    fontSize: 15, 
+    paddingBottom: 2, 
+    paddingRight: 15,
+  }
+});
 
 const App = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const [newMessageCount, setNewMessageCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
   const [customerName, setCustomerName] = useState('');
-  const [mobileContact, setMobileContact] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [items, setItems] = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
   const ws = useRef(null);
@@ -25,8 +97,15 @@ const App = () => {
   useEffect(() => {
     if(isModalVisible) {
      input.current.focus();
+     setMessageCount(messages.length);
     }
   }, [isModalVisible]);
+
+  useEffect(() => {
+    if(!isModalVisible) {
+      setMessageCount(messages.length);
+    }
+  }, [messages, isModalVisible]);
 
   const handleNewMessage = () => {
     if(isModalVisible) {
@@ -36,7 +115,6 @@ const App = () => {
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
-    setNewMessageCount(0);
   };
 
   const handleMessage = (e) => {
@@ -51,7 +129,7 @@ const App = () => {
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     ws.current.send(JSON.stringify({id: new Date().getTime(), name, contact, itemsPlaced, delivery, deviceId, time: new Date()}));
     setCustomerName('');
-    setMobileContact('');
+    setPhoneNumber('');
     setItems('');
     setDeliveryDate('');
   }
@@ -60,9 +138,9 @@ const App = () => {
     setCustomerName(e.nativeEvent.text);
   };
 
-  const handleMobileContact = (e) => {
+  const handlePhoneNumber = (e) => {
     //if (MOBILE_NUMBER_REGEX.test(text)) {
-      setMobileContact(e.nativeEvent.text);
+      setPhoneNumber(e.nativeEvent.text);
     //}
   };
 
@@ -75,37 +153,53 @@ const App = () => {
   };
 
   return (
-    <View>
+    <View style={styles.containerStyle}>
+      <Label title={'Place your Order'} />
       <View>
-        <TextInput
-          placeholder="Customer Name"
+        <TextInputWithLabel
+          label="Customer Name"
           value={customerName}
-          onChange={handleCustomerName}
+          onChangeText={handleCustomerName}
+          viewStyle={styles.textInputViewStyle}
         />
-        <TextInput
-          placeholder="Mobile Contact"
-          value={mobileContact}
+        <TextInputWithLabel
+          label="Phone Number"
+          value={phoneNumber}
           keyboardType="phone-pad"
-          onChange={handleMobileContact}
+          maxLength={10}
+          onChangeText={handlePhoneNumber}
+          viewStyle={styles.textInputViewStyle}
+
         />
-        <TextInput
-          placeholder="Items to be ordered"
+        <TextInputWithLabel
+          label="Items to be ordered"
           value={items}
-          onChange={handleItems}
+          onChangeText={handleItems}
+          viewStyle={styles.textInputViewStyle}
+
         />
-        <TextInput
-          placeholder="Expected delivery date/time"
+        <TextInputWithLabel
+          label="Expected delivery date/time"
           value={deliveryDate}
-          onChange={handleDeliveryDate}
+          onChangeText={handleDeliveryDate}
+          viewStyle={styles.textInputViewStyle}
+
+        />
+      <View style = {{margin: 20}}>
+        <CustomButton 
+          title="Place order" 
+          onPress={placeOrder.bind(this, customerName, phoneNumber, items, deliveryDate)} 
         />
       </View>
-      <View style = {{margin: 20}}>
-        <Button title="Place order" onPress={placeOrder.bind(this, customerName, mobileContact, items, deliveryDate)} />
+
       </View>
       <View style = {{margin: 20}}>
-        <Button title="Open Chat" onPress={toggleModal} />
+      <CustomButton 
+          title="Open Chat" 
+          onPress={toggleModal} 
+        />
       </View>
-      <Text>Message Count: {newMessageCount}</Text>
+      <Text>Message Count: {messageCount}</Text>
       <Modal 
         isVisible={isModalVisible} 
         backdropTransitionOutTiming={0}
@@ -168,9 +262,6 @@ const App = () => {
         onMessage={(event) => {
           console.log("Message event: ", JSON.parse(event.data), messages); 
           setMessages([...messages, JSON.parse(event.data)]);
-          if(!isModalVisible) {
-            setNewMessageCount(newMessageCount + 1);
-          }
           handleNewMessage();
         }
         }
@@ -179,63 +270,6 @@ const App = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  modal: {
-    flex: 1,
-    backgroundColor: 'lightblue',
-    borderRadius: 10,
-    overflow: 'hidden',
-    padding: 16
-  },
-  closeButton: {
-    padding: 8
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  messageInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    marginRight: 10,
-    backgroundColor: 'white',
-  },
-  list: {
-    flex: 1,
-    marginVertical: 20,
-  },
-  messageView: {
-    padding: 10, 
-    borderRadius: 10,
-    marginBottom: 15,
-    justifyContent: 'flex-end',
-  },
-  messageText: {
-    color: 'black',
-    fontSize: 15
-  },
-  orderDetailsHeaderText: {
-    fontWeight: 'bold',
-  },
-  messageHeaderView: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  messageNameText: {
-    color: 'green', 
-    fontSize: 15, 
-    paddingBottom: 2, 
-    paddingRight: 15,
-  }
-});
+
 
 export default App;
