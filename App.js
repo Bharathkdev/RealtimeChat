@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, SafeAreaView} from 'react-native';
 import PlaceOrder from './src/screens/PlaceOrder';
 
 const styles = StyleSheet.create({
@@ -12,8 +12,10 @@ const styles = StyleSheet.create({
 export default App = () => {
   
   return (
-    <View style = {styles.container}>
+    <>
+    <SafeAreaView style = {styles.container} >
       <PlaceOrder />
-    </View>
+    </SafeAreaView>
+    </>
   );
 };

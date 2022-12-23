@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { KeyboardAvoidingView, View, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import WebSocket from 'react-native-websocket';
 import DeviceInfo from 'react-native-device-info';
 import { moderateScale } from 'react-native-size-matters';
@@ -9,15 +9,21 @@ import { Label } from '../common/components/Label';
 import { CustomButton } from '../common/components/CustomButton';
 import ChatModal from './ChatModal';
 import NetInfo from "@react-native-community/netinfo";
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 const styles = StyleSheet.create({
   containerStyle: {
-    flex: 1,
-    padding: moderateScale(30),
-    justifyContent: 'space-between'
+    flex:1, 
+    padding: moderateScale(10), 
+    marginVertical: moderateScale(20),
+    justifyContent:'space-between'
+  },
+  innerContainerStyle: {
+    flexGrow: 1,
   },
   textInputViewStyle: {
-    marginBottom: moderateScale(18),
+    marginBottom: moderateScale(16),
   },
   iconContainerStyle: {
     padding: moderateScale(10),
@@ -33,21 +39,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     justifyContent: 'center',
     alignItems: 'center',
-    right: moderateScale(-15),
-    top: moderateScale(-15),
+    right: moderateScale(-5),
+    top: moderateScale(-5),
   },
   iconStyle: {
     padding: moderateScale(10),
     borderRadius: moderateScale(10),
-    backgroundColor: '#F3FAFF',
+    backgroundColor: 'transparent',
     shadowColor: "#000",
     shadowOffset: {
     	width: 0,
-    	height: 2,
+    	height: 3,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    elevation: 6,
   },
 });
 
@@ -55,10 +61,6 @@ export default PlaceOrder = () => {
   const [modalVisibility, setModalVisibility] = useState(false);
   const [messagesList, setMessagesList] = useState([]);
   const [newMessageCount, setNewMessageCount] = useState(0);
-  const [customerName, setCustomerName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [items, setItems] = useState('');
-  const [deliveryDate, setDeliveryDate] = useState('');
   const [isOffline, setOfflineStatus] = useState(false);
   const ws = useRef(null);
   const listRef = useRef(null);
@@ -86,82 +88,116 @@ export default PlaceOrder = () => {
 
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
-    setCustomerName('');
-    setPhoneNumber('');
-    setItems('');
-    setDeliveryDate('');
   }
 
-  const handleCustomerName = (e) => {
-    setCustomerName(e.nativeEvent.text);
-  };
-
-  const handlePhoneNumber = (e) => {
-    //if (MOBILE_NUMBER_REGEX.test(text)) {
-      setPhoneNumber(e.nativeEvent.text);
-    //}
-  };
-
-  const handleItems = (e) => {
-    setItems(e.nativeEvent.text);
-  };
-
-  const handleDeliveryDate = (e) => {
-    setDeliveryDate(e.nativeEvent.text);
-  };
-
-  return (
-    <View style={styles.containerStyle}>
-      <Label title={'Place your Order'} labelStyle = {{fontWeight: '600'}}/>
-      <View>
-        <TextInputWithLabel
-          label="Customer Name"
-          value={customerName}
-          onChangeText={handleCustomerName}
-          viewStyle={styles.textInputViewStyle}
-        />
-        <TextInputWithLabel
-          label="Phone Number"
-          value={phoneNumber}
-          keyboardType="phone-pad"
-          maxLength={10}
-          onChangeText={handlePhoneNumber}
-          viewStyle={styles.textInputViewStyle}
-        />
-        <TextInputWithLabel
-          label="Items to be ordered"
-          value={items}
-          onChangeText={handleItems}
-          viewStyle={styles.textInputViewStyle}
-        />
-        <TextInputWithLabel
-          label="Expected delivery date/time"
-          value={deliveryDate}
-          onChangeText={handleDeliveryDate}
-          viewStyle={styles.textInputViewStyle}
-        />
-        <View style = {{margin: 20}}>
-          <CustomButton 
-            title="Place order" 
-            onPress={placeOrder.bind(this, customerName, phoneNumber, items, deliveryDate)} 
-          />
-        </View>
-        <View style={styles.iconContainerStyle}>
-          <TouchableOpacity 
-            onPress={toggleModal}
-            activeOpacity = {1}
-          >
-            <ChatIcon name="hipchat" color='#4AADE8' size={45} style={styles.iconStyle}/>
-            {
-              newMessageCount !== 0 &&
-              <View style = {styles.badgeViewStyle}>
-                <Label title = {newMessageBadgeCount} labelStyle = {{fontSize: moderateScale(14)}}/>
+  return(
+   
+      <ScrollView
+        contentContainerStyle = {styles.innerContainerStyle}
+      >
+        <Formik
+          initialValues = {{ 
+            customerName: '',
+            phoneNumber: '',
+            items: '',
+            deliveryDate: ''
+          }}
+          onSubmit = {() => {}}
+          validationSchema = {
+            Yup.object().shape({
+              customerName: Yup.string().required('Required'),
+              phoneNumber: Yup.string()
+                .required('Required')
+                .min(10, 'Enter a valid phone number')
+                .matches(/^\d+$/, 'Enter a valid phone number'),
+              items: Yup.string().required('Required'),
+              deliveryDate: Yup.string().required('Required'),
+            })
+          }
+          validateOnMount
+          validateOnBlur
+          validateOnChange
+          component = {({ handleChange, handleBlur, touched, values, errors, isValid }) => {
+            return (
+              <KeyboardAvoidingView
+                keyboardVerticalOffset = {Platform.select({ ios: 0, android: 0 })}
+                behavior = {Platform.OS === "ios" ? "padding" : null}
+                style={styles.containerStyle}
+              >
+              <View style={styles.containerStyle}>
+                <View>
+                  <Label title={'Place your Order'} labelStyle = {{fontWeight: '600', paddingBottom: moderateScale(30)}}/>
+              
+                  <TextInputWithLabel
+                    label = "Customer Name"
+                    value = {values.customerName}
+                    onChangeText = {handleChange("customerName")}
+                    onBlur = {handleBlur("customerName")}
+                    error = {touched.customerName && errors.customerName}
+                    viewStyle = {styles.textInputViewStyle}
+                  />
+                  <TextInputWithLabel
+                    label = "Phone Number"
+                    value = {values.phoneNumber}
+                    keyboardType = "phone-pad"
+                    maxLength = {10}
+                    onChangeText = {handleChange("phoneNumber")}
+                    onBlur = {handleBlur("phoneNumber")}
+                    error = {touched.phoneNumber && errors.phoneNumber}
+                    viewStyle = {styles.textInputViewStyle}
+                  />
+                  <TextInputWithLabel
+                    label = "Items to be ordered"
+                    value = {values.items}
+                    onChangeText={handleChange("items")}
+                    onBlur = {handleBlur("items")}
+                    error = {touched.items && errors.items}
+                    viewStyle = {styles.textInputViewStyle}
+                  />
+                  <TextInputWithLabel
+                    label = "Expected delivery date/time"
+                    value = {values.deliveryDate}
+                    onChangeText = {handleChange("deliveryDate")}
+                    onBlur = {handleBlur("deliveryDate")}
+                    error = {touched.deliveryDate && errors.deliveryDate}
+                    viewStyle = {styles.textInputViewStyle}
+                  />
+                </View>
+                <View>
+                  <CustomButton 
+                    title = "Place order" 
+                    disableButton = {!isValid}
+                    onPress={placeOrder.bind(
+                      this,
+                      values.customerName, 
+                      values.phoneNumber, 
+                      values.items, 
+                      values.deliveryDate
+                    )} 
+                  />
+                </View>
+                <View>
+                  <View style={styles.iconContainerStyle}>
+                    <TouchableOpacity 
+                      onPress={toggleModal}
+                      activeOpacity = {1}
+                    >
+                      <ChatIcon name="hipchat" color='#4AADE8' size={45} style={styles.iconStyle}/>
+                      {
+                        newMessageCount !== 0 &&
+                        <View style = {styles.badgeViewStyle}>
+                          <Label title = {newMessageBadgeCount} labelStyle = {{fontSize: moderateScale(14)}}/>
+                        </View>
+                      }
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
-            }
-          </TouchableOpacity>
-        </View>
-      </View>
-      <ChatModal 
+              </KeyboardAvoidingView>    
+            );
+          }}
+        />  
+        <ChatModal 
         modalVisible = {modalVisibility}
         hideModal = {() => setModalVisibility(false)}
         resetNewMessageCount = {() => setNewMessageCount(0)}
@@ -183,6 +219,6 @@ export default PlaceOrder = () => {
         }
         }
       />
-    </View>
-  );
+      </ScrollView>
+  )
 };
