@@ -9,7 +9,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 const styles = StyleSheet.create({
   modal: {
     flex: 1,
-    backgroundColor: 'lightblue',
+    backgroundColor: '#F2F3F5',
     borderRadius: 10,
     overflow: 'hidden',
     padding: 16
@@ -23,13 +23,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 60,
     left: 20,
-    backgroundColor: 'lightgrey',
     borderRadius: 5,
+    overflow: 'hidden',
+    backgroundColor: '#CEEAFF'
   },
   filterOptions: {
     padding: 10,
     textAlign: "center",
-    color: 'black',
+    color: '#000000',
     fontWeight: 'bold',
   },
   filterLine: {
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   messageNameText: {
-    color: 'green', 
+    color: '#328CDB', 
     fontSize: 15, 
     paddingBottom: 2, 
     paddingRight: 15,
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 20,
     marginRight: 10,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
   }
 });
 
@@ -296,7 +297,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
                   visible={isFilterModalVisible}
                   onBackdropPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
                   {filters.map(filter => (
-                    <TouchableOpacity key={filter.option} style={{backgroundColor: filterOption === filter.value ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions(filter.value)}>
+                    <TouchableOpacity activeOpacity={0.7} key={filter.option} style={{backgroundColor: filterOption === filter.value ? '#C5C7C4' : '#CEEAFF'}} onPress={() => handleFilterOptions(filter.value)}>
                       <Text style = {styles.filterOptions}>{filter.option}</Text>
                       {filter.option !== 'My Messages' ? <View style={styles.filterLine}></View> : null}
                     </TouchableOpacity>
@@ -332,7 +333,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) =>
               <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? 20 : 0, paddingRight: item.deviceId === deviceId ? 0 : 20}}>
-                  <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? '#B1D8B7' : 'white' }}>
+                  <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? '#CEEAFF' : '#FFFFFF' }}>
                   <View style = {styles.messageHeaderView}>
                       <Text style = {styles.messageNameText}>{(item.name && item.deviceId !== deviceId) ? item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name : (item.deviceId === deviceId) ? 'You' : 'Anonymous'}</Text>
                       <Text>{handleMessageTimestamp(item.time)}</Text>

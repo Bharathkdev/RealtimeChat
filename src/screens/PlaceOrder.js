@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Animated, Text, TouchableOpacity } from 'react-native';
 import WebSocket from 'react-native-websocket';
 import DeviceInfo from 'react-native-device-info';
 import { moderateScale } from 'react-native-size-matters';
@@ -49,6 +49,21 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  banner: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FF0000',
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20
+  },
+  bannerText: {
+    color: 'white', 
+    fontSize: 16,
+  },
 });
 
 export default PlaceOrder = () => {
@@ -63,16 +78,27 @@ export default PlaceOrder = () => {
   const ws = useRef(null);
   const listRef = useRef(null);
   const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
+  const [banner] = useState(new Animated.Value(0));
 
   useEffect(() => {
     const removeNetInfoSubscription = NetInfo.addEventListener((state) => {
       const offline = !(state.isConnected && state.isInternetReachable);
-      console.log("Network status: ", offline);
+      console.log("Offline: ", offline);
       setOfflineStatus(offline);
     });
   
     return () => removeNetInfoSubscription();
   }, []);
+
+  useEffect(() => {
+    if(isOffline) {
+        Animated.timing(banner, {
+            toValue: isOffline ? 1 : 0,
+            duration: 2000,
+            useNativeDriver: true,
+        }).start();
+    }
+  }, [isOffline, banner]);
 
   const handleNewMessage = () => {
     if(modalVisibility) {
@@ -110,8 +136,23 @@ export default PlaceOrder = () => {
     setDeliveryDate(e.nativeEvent.text);
   };
 
+  const bannerStyle = {
+    transform: [
+      {
+        translateY: banner.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-50, 0],
+        }),
+      },
+    ],
+  };
+
   return (
     <View style={styles.containerStyle}>
+      {isOffline ? 
+      <Animated.View style={[styles.banner, bannerStyle]}>
+        <Text style={styles.bannerText}>You are offline</Text>
+      </Animated.View> : null}
       <Label title={'Place your Order'} labelStyle = {{fontWeight: '600'}}/>
       <View>
         <TextInputWithLabel
