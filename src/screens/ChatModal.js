@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import { View, TextInput, Text, FlatList, Animated, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Easing, Text, FlatList, Animated, StyleSheet, TouchableOpacity } from 'react-native';
 import Modal from 'react-native-modal';
 import DeviceInfo from 'react-native-device-info';
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -38,8 +38,6 @@ const styles = StyleSheet.create({
     borderBottomStyle: 'solid'
   },
   searchBar: {
-    width: 210,
-    height: 40,
     marginLeft: 10,
     borderColor: "black",
     borderWidth: 1,
@@ -121,8 +119,15 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   const [fadeAnim] = useState(new Animated.Value(0));
   const [hasDataLongerThanScreen, setHasDataLongerThanScreen] = useState(false);
   const input = useRef(null);
-
+  const [searchBarHeight] = useState(new Animated.Value(0));
+  const [searchBarWidth] = useState(new Animated.Value(0));
   const deviceId = DeviceInfo.getUniqueId()._j;
+  const filters = [
+    {option: 'All', value: 'all'}, 
+    {option: 'Orders', value: 'order'}, 
+    {option: 'Messages', value: 'message'}, 
+    {option: 'My Orders', value: 'myOrder'}, 
+    {option: 'My Messages', value: 'myMessage'}];
 
   useEffect(() => {
     console.log("scroll position: ", scrollPosition);
@@ -147,7 +152,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   }, [modalVisible, input, messageRef]);
 
   useEffect(() => {
-    console.log("Filtered data: ", filteredData);
+    
     const lowerCaseSearchInput = searchInput.toLowerCase();
     const filteredMessages = messagesList?.filter((item) =>
       item.message?.toLowerCase().includes(lowerCaseSearchInput) ||
@@ -207,7 +212,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   };
 
   const sendMessage = () => {
-    webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()}));
+    webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
     setNewMessage('');
   };
 
@@ -217,18 +222,59 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   };
 
   const searchBarHandler = () => {
-    LayoutAnimation.configureNext(
-      LayoutAnimation.Types.easeInEaseOut,
-      () => {
-        setSearchBarVisible(!isSearchBarVisible);
-        setSearchInput("");
-      },
-      {
-        duration: 300, // duration of the animation in milliseconds
-      }
-    );
+   
+    if (isSearchBarVisible) {
+      // Animate the search bar's height to 0 (collapsed)
+      Animated.parallel([
+        Animated.timing(searchBarHeight, {
+          toValue: 0,    // 0 is the desired height of the search bar
+          duration: 500, // duration of the animation in milliseconds
+          easing: Easing.ease,
+          useNativeDriver: false,
+        }),
+        Animated.timing(searchBarWidth, {
+          toValue: 0,    // 0 is the desired width of the search bar
+          duration: 500, 
+          easing: Easing.ease,
+          useNativeDriver: false,
+        })
+      ]).start(() => {
+          setSearchBarVisible(false);
+          setSearchInput('');
+        });
+    } else {
+      // Animate the search bar's height to 40 (expanded)
+      Animated.parallel([
+        Animated.timing(searchBarHeight, {
+          toValue: 40, // 40 is the desired height of the search bar
+          duration: 500, // duration of the animation in milliseconds
+          useNativeDriver: false,
+        }),
+        Animated.timing(searchBarWidth, {
+          toValue: 210, // 210 is the desired width of the search bar
+          duration: 500, 
+          useNativeDriver: false,
+        })
+      ]).start();
+      setSearchBarVisible(true);
+    }
   };
 
+  const handleMessageTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    const options = {
+      timeZone: timezone,
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    };
+
+    const formattedTimestamp = new Intl.DateTimeFormat('en-US', options).format(date);
+
+    return formattedTimestamp;
+  }
 
     return (
         <Modal 
@@ -240,108 +286,96 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
         animationOutTiming={500} 
         >
         <View style={styles.modal}>
-        <View style = {styles.modalHeader}>
-            <View style = {{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity onPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
-                <Icon name="filter" color="black" size={25}/>
-            </TouchableOpacity>
-            <Modal 
-                style={styles.filterModal}
-                visible={isFilterModalVisible}
-                onBackdropPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
-                <TouchableOpacity style={{backgroundColor: filterOption === 'all' ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions('all')}>
-                    <Text style = {styles.filterOptions}>All</Text>
-                    <View style={styles.filterLine}></View>
-                </TouchableOpacity>
-                <TouchableOpacity style={{backgroundColor: filterOption === 'order' ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions('order')}>
-                    <Text style = {styles.filterOptions}>Orders</Text>
-                    <View style={styles.filterLine}></View>
-                </TouchableOpacity>
-                <TouchableOpacity style={{backgroundColor: filterOption === 'message' ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions('message')}>
-                    <Text style = {styles.filterOptions}>Messages</Text>
-                    <View style={styles.filterLine}></View>
-                </TouchableOpacity>
-                <TouchableOpacity style={{backgroundColor: filterOption === 'myOrder' ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions('myOrder')}>
-                    <Text style = {styles.filterOptions}>My Orders</Text>
-                    <View style={styles.filterLine}></View>
-                </TouchableOpacity>
-                <TouchableOpacity style={{backgroundColor: filterOption === 'myMessage' ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions('myMessage')}>
-                    <Text style = {styles.filterOptions}>My Messages</Text>
-                </TouchableOpacity>
-            </Modal>
-            <TouchableOpacity style = {{marginLeft: 20}} onPress={searchBarHandler}>
-                <MaterialIcon name= {isSearchBarVisible ? "search-off" : "search"} color="black" size={25}/>
-            </TouchableOpacity> 
-            {isSearchBarVisible ? <View style={styles.searchBar}>
-                <TextInput
-                autoFocus
-                value={searchInput}
-                onChangeText={setSearchInput}
-                placeholder="Search"
-                style={styles.searchBarInput}
-                />
-            </View> : null}
-            </View>
-            <TouchableOpacity onPress={closeModal} style = {styles.closeButton}>
-            <Icon name="close" color="black" size={25}/>
-            </TouchableOpacity>
-        </View>  
-        <View style={styles.list}>
-        {filteredData?.length > 0 ? <FlatList
-            ref={messageRef}
-            onScroll={handleScroll}
-            onScrollToIndexFailed={(info) => {
-            console.log(`Failed to scroll to index ${JSON.stringify(info)}.`);
-            }}
-            data={filteredData}
-            keyExtractor={item => item.id}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) =>
-            <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? 20 : 0, paddingRight: item.deviceId === deviceId ? 0 : 20}}>
-                <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? '#B1D8B7' : 'white' }}>
-                <View style = {styles.messageHeaderView}>
-                    <Text style = {styles.messageNameText}>{(item.name && item.deviceId !== deviceId) ? item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name : (item.deviceId === deviceId) ? 'You' : 'Anonymous'}</Text>
-                    <Text>{item.time}</Text>
-                </View>
-                {item.type === 'order' ? 
-                    <>
-                        <Text style = {styles.orderDetailsHeaderText}>{item.name} order details:</Text>
-                        <Text style = {styles.messageText}>
-                        Customer Name: {item.name}
-                        {"\n"}
-                        Mobile: {item.contact}
-                        {"\n"}
-                        Order Items: {item.itemsPlaced}
-                        {"\n"}
-                        Expected Delivery date: {item.delivery}
-                        </Text> 
-                    </> : 
-                    <Text style = {styles.messageText}>{item.message}</Text>
-                    }
-                </View> 
-            </View>
-            }
-        /> : <View style={styles.emptyListView}>
-        <Text style={styles.emptyText}>No messages/orders yet. 
-            {"\n"}
-            Please send a message or place an order or try with another filter.
-        </Text>
-        </View> }
-        <Animated.View style={{
-        ...styles.floatingIcon,
-        opacity: fadeAnim,  
-        }}>
-        <TouchableOpacity onPress = {handleNewMessage}>
-            <Icon name="chevron-down-circle-outline" size={40} color="black"/>
-        </TouchableOpacity>
-        </Animated.View>
-        </View>
-            <View style = {styles.modalFooter}>
+          <View style = {styles.modalHeader}>
+              <View style = {{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+              <TouchableOpacity onPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
+                  <Icon name="filter" color="black" size={25}/>
+              </TouchableOpacity>
+              <Modal 
+                  style={styles.filterModal}
+                  visible={isFilterModalVisible}
+                  onBackdropPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
+                  {filters.map(filter => (
+                    <TouchableOpacity key={filter.option} style={{backgroundColor: filterOption === filter.value ? 'grey' : 'lightgrey'}} onPress={() => handleFilterOptions(filter.value)}>
+                      <Text style = {styles.filterOptions}>{filter.option}</Text>
+                      {filter.option !== 'My Messages' ? <View style={styles.filterLine}></View> : null}
+                    </TouchableOpacity>
+                  )
+                  )}
+              </Modal>
+              <TouchableOpacity style = {{marginLeft: 20}} onPress={searchBarHandler}>
+                  <MaterialIcon name= {isSearchBarVisible ? "search-off" : "search"} color="black" size={25}/>
+              </TouchableOpacity> 
+              {isSearchBarVisible ? <Animated.View style={[styles.searchBar,  {height: searchBarHeight, width: searchBarWidth} ]}>
+                  <TextInput
+                  autoFocus
+                  value={searchInput}
+                  onChangeText={setSearchInput}
+                  placeholder="Search"
+                  style={styles.searchBarInput}
+                  />
+              </Animated.View> : null}
+              </View>
+              <TouchableOpacity onPress={closeModal} style = {styles.closeButton}>
+              <Icon name="close" color="black" size={25}/>
+              </TouchableOpacity>
+          </View>  
+          <View style={styles.list}>
+          {filteredData?.length > 0 ? <FlatList
+              ref={messageRef}
+              onScroll={handleScroll}
+              onScrollToIndexFailed={(info) => {
+              console.log(`Failed to scroll to index ${JSON.stringify(info)}.`);
+              }}
+              data={filteredData}
+              keyExtractor={item => item.id}
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item }) =>
+              <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? 20 : 0, paddingRight: item.deviceId === deviceId ? 0 : 20}}>
+                  <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? '#B1D8B7' : 'white' }}>
+                  <View style = {styles.messageHeaderView}>
+                      <Text style = {styles.messageNameText}>{(item.name && item.deviceId !== deviceId) ? item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name : (item.deviceId === deviceId) ? 'You' : 'Anonymous'}</Text>
+                      <Text>{handleMessageTimestamp(item.time)}</Text>
+                  </View>
+                  {item.type === 'order' ? 
+                      <>
+                          <Text style = {styles.orderDetailsHeaderText}>{item.name} order details:</Text>
+                          <Text style = {styles.messageText}>
+                          Customer Name: {item.name}
+                          {"\n"}
+                          Mobile: {item.contact}
+                          {"\n"}
+                          Order Items: {item.itemsPlaced}
+                          {"\n"}
+                          Expected Delivery date: {item.delivery}
+                          </Text> 
+                      </> : 
+                      <Text style = {styles.messageText}>{item.message}</Text>
+                      }
+                  </View> 
+              </View>
+              }
+          /> : <View style={styles.emptyListView}>
+          <Text style={styles.emptyText}>No messages/orders yet. 
+              {"\n"}
+              Please send a message or place an order or try with another filter.
+          </Text>
+          </View> }
+          <Animated.View style={{
+          ...styles.floatingIcon,
+          opacity: fadeAnim,  
+          }}>
+          <TouchableOpacity onPress = {handleNewMessage}>
+              <Icon name="chevron-down-circle-outline" size={40} color="black"/>
+          </TouchableOpacity>
+          </Animated.View>
+          </View>
+          <View style = {styles.modalFooter}>
             <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder="Type your message here..." value={newMessage} onChange={handleMessage} />
             <TouchableOpacity disabled={newMessage ? false : true} style = {{opacity: newMessage ? 1 : 0.3}} onPress={sendMessage}>
-                <Icon name="send" color="black" size={25}/>
+              <Icon name="send" color="black" size={25}/>
             </TouchableOpacity>
-            </View>
+          </View>
         </View>
         </Modal>
     )

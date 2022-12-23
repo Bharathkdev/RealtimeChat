@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import WebSocket from 'react-native-websocket';
 import DeviceInfo from 'react-native-device-info';
@@ -8,6 +8,7 @@ import {TextInputWithLabel} from '../common/components/TextInputWithLabel';
 import { Label } from '../common/components/Label';
 import { CustomButton } from '../common/components/CustomButton';
 import ChatModal from './ChatModal';
+import NetInfo from "@react-native-community/netinfo";
 
 const styles = StyleSheet.create({
   containerStyle: {
@@ -58,9 +59,20 @@ export default PlaceOrder = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [items, setItems] = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
+  const [isOffline, setOfflineStatus] = useState(false);
   const ws = useRef(null);
   const listRef = useRef(null);
   const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
+
+  useEffect(() => {
+    const removeNetInfoSubscription = NetInfo.addEventListener((state) => {
+      const offline = !(state.isConnected && state.isInternetReachable);
+      console.log("Network status: ", offline);
+      setOfflineStatus(offline);
+    });
+  
+    return () => removeNetInfoSubscription();
+  }, []);
 
   const handleNewMessage = () => {
     if(modalVisibility) {
@@ -73,7 +85,7 @@ export default PlaceOrder = () => {
   };
 
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
-    ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()}));
+    ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
     setCustomerName('');
     setPhoneNumber('');
     setItems('');
@@ -115,21 +127,18 @@ export default PlaceOrder = () => {
           maxLength={10}
           onChangeText={handlePhoneNumber}
           viewStyle={styles.textInputViewStyle}
-
         />
         <TextInputWithLabel
           label="Items to be ordered"
           value={items}
           onChangeText={handleItems}
           viewStyle={styles.textInputViewStyle}
-
         />
         <TextInputWithLabel
           label="Expected delivery date/time"
           value={deliveryDate}
           onChangeText={handleDeliveryDate}
           viewStyle={styles.textInputViewStyle}
-
         />
         <View style = {{margin: 20}}>
           <CustomButton 
@@ -163,7 +172,7 @@ export default PlaceOrder = () => {
         />
       <WebSocket
         ref={ws}
-        url="wss://26c6-49-206-114-174.in.ngrok.io"
+        url="wss://c208-121-200-48-218.in.ngrok.io"
         onMessage={(event) => {
           console.log("Message event: ", JSON.parse(event.data), messagesList); 
           setMessagesList([...messagesList, JSON.parse(event.data)]);
