@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { KeyboardAvoidingView, View, StyleSheet, Animated, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
-import WebSocket from 'react-native-websocket';
+import io from 'socket.io-client';
 import DeviceInfo from 'react-native-device-info';
 import { moderateScale } from 'react-native-size-matters';
 import ChatIcon from 'react-native-vector-icons/Fontisto';
@@ -57,13 +57,25 @@ const styles = StyleSheet.create({
   }
 });
 
+const socket = io.connect('https://224a-49-206-115-118.in.ngrok.io');
+
 export default PlaceOrder = ({offline}) => {
   const [modalVisibility, setModalVisibility] = useState(false);
   const [messagesList, setMessagesList] = useState([]);
   const [newMessageCount, setNewMessageCount] = useState(0);
-  const ws = useRef(null);
   const listRef = useRef(null);
   const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
+
+  useEffect(() => {
+    socket.on('messages', (msg) => {
+      console.log("Message received", messagesList, msg)
+      setMessagesList([...messagesList, msg]);
+      if(!modalVisibility && msg) {
+        setNewMessageCount(newMessageCount + 1);
+      }
+      handleNewMessage();
+    });
+  }, []);
 
   const handleNewMessage = () => {
     if(modalVisibility) {
@@ -77,9 +89,10 @@ export default PlaceOrder = ({offline}) => {
 
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
-      ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+      console.log('place order');
+      socket.emit('messages', {id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()});
     }
-  }
+  };
 
   return(
       <>
@@ -103,7 +116,7 @@ export default PlaceOrder = ({offline}) => {
                 .min(10, 'Enter a valid phone number')
                 .matches(/^\d+$/, 'Enter a valid phone number'),
               items: Yup.string().required('Required'),
-              deliveryDate: Yup.string().required('Required'),
+              deliveryDate: Yup.string(),
             })
           }
           validateOnMount
@@ -190,26 +203,12 @@ export default PlaceOrder = ({offline}) => {
         modalVisible = {modalVisibility}
         hideModal = {() => setModalVisibility(false)}
         resetNewMessageCount = {() => setNewMessageCount(0)}
-        webSocket = {ws}
+        //webSocket = {ws}
         messageRef = {listRef}
         messagesList = {messagesList}
         newMessageCount = {newMessageCount} 
         offline = {offline}
         />
-      <WebSocket
-        ref={ws}
-        reconnect={true}
-        url="wss://c208-121-200-48-218.in.ngrok.io"
-        onMessage={(event) => {
-          console.log("Message event: ", JSON.parse(event.data), messagesList); 
-          setMessagesList([...messagesList, JSON.parse(event.data)]);
-          if(!modalVisibility && JSON.parse(event.data)) {
-            setNewMessageCount(newMessageCount + 1);
-          }
-          handleNewMessage();
-        }
-        }
-      />
       </ScrollView>
       </>
   )

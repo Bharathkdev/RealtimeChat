@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     color: 'black',
-    fontSize: moderateScale(15)
+    fontSize: moderateScale(12)
   },
   messageHeaderView: {
     flex: 1,
