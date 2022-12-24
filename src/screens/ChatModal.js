@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import { View, TextInput, Easing, Text, FlatList, Animated, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Easing, Text, FlatList, Animated, StyleSheet, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import Modal from 'react-native-modal';
 import DeviceInfo from 'react-native-device-info';
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(10),
     overflow: 'hidden',
     padding: moderateScale(15),
+    marginVertical: moderateScale(20)
   },
   modalHeader: {
     flexDirection: 'row',
@@ -314,7 +315,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
         >
         <View style={styles.modal}>
           <View style = {styles.modalHeader}>
-              <View style = {{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+            <View style = {{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
               <TouchableOpacity onPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
                   <Icon name="filter" color="black" size={25}/>
               </TouchableOpacity>
@@ -342,11 +343,11 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
                   style={styles.searchBarInput}
                   />
               </Animated.View> : null}
-              </View>
+            </View>
               <TouchableOpacity onPress={closeModal} style = {styles.closeButton}>
               <Icon name="close" color="black" size={25}/>
               </TouchableOpacity>
-          </View>  
+            </View>  
           <View style={styles.list}>
           {filteredData?.length > 0 ? <FlatList
               ref={messageRef}
