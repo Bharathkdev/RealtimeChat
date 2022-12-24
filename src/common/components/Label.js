@@ -6,7 +6,8 @@ const styles = StyleSheet.create({
     labelStyle: {
         alignSelf: 'center',
         fontSize: moderateScale(22),
-        color: '#000000'
+        color: '#000000',
+        fontFamily: 'Poppins-SemiBold'
     }
 });
 

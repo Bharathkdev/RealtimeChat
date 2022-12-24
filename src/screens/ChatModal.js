@@ -5,6 +5,7 @@ import DeviceInfo from 'react-native-device-info';
 import Icon from 'react-native-vector-icons/Ionicons'
 import { moderateScale } from 'react-native-size-matters';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import Feather from 'react-native-vector-icons/Feather';
 
 const styles = StyleSheet.create({
   modal: {
@@ -105,10 +106,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: moderateScale(20),
     marginRight: moderateScale(10),
     backgroundColor: '#FFFFFF',
-  }
+  },
+  textInputWithIcon: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center'
+  },
+  wifiOffIcon: {
+    paddingRight: moderateScale(10),
+},
 });
 
-export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, messagesList, resetNewMessageCount, newMessageCount, isOffline}) => { 
+export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, messagesList, resetNewMessageCount, newMessageCount, offline}) => { 
 
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
   const [isSearchBarVisible, setSearchBarVisible] = useState(false);
@@ -119,6 +129,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   const [scrollPosition, setScrollPosition] = useState(0);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [hasDataLongerThanScreen, setHasDataLongerThanScreen] = useState(false);
+  const [offlineMessages, setOfflineMessages] = useState([]);
   const input = useRef(null);
   const [searchBarHeight] = useState(new Animated.Value(0));
   const [searchBarWidth] = useState(new Animated.Value(0));
@@ -170,6 +181,15 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
     setFilteredData(filteredMessages);
   }, [searchInput, messagesList, filterOption]);
 
+  // useEffect(() => {
+  //   if (!offline && offlineMessages.length > 0) {
+  //     offlineMessages.forEach(message => {
+  //       webSocket.current.send(JSON.stringify(message))
+  //     });
+  //     setOfflineMessages([]);
+  //   }
+  // }, [offline]);
+
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -191,7 +211,6 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
     const scrollPosition = contentOffset.y / (contentSize.height - layoutMeasurement.height);
     const hasDataLongerThanScreen = contentSize.height > layoutMeasurement.height;
     setScrollPosition(scrollPosition);
-    console.log("Has Longer data: ", hasDataLongerThanScreen);
     setHasDataLongerThanScreen(hasDataLongerThanScreen);
   };
 
@@ -213,12 +232,14 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   };
 
   const sendMessage = () => {
-    if(!isOffline) {
+    if(!offline) {
       webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
       setNewMessage('');
-    } else {
-      alert("You are offline");
-    }
+    } 
+    // else {
+    //   setOfflineMessages([...offlineMessages, {id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}]);
+    //   setNewMessage('');
+    // }
   };
 
   const handleFilterOptions = (option) => {
@@ -373,8 +394,11 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
           </Animated.View>
           </View>
           <View style = {styles.modalFooter}>
-            <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder="Type your message here..." value={newMessage} onChange={handleMessage} />
-            <TouchableOpacity disabled={(newMessage && !isOffline) ? false : true} style = {{opacity: newMessage && !isOffline ? 1 : 0.3}} onPress={sendMessage}>
+            <View style={styles.textInputWithIcon}>
+              {offline ? <Feather style = {styles.wifiOffIcon} name="wifi-off" color="red" size={25}/> : null}
+              <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder="Type your message here..." value={newMessage} onChange={handleMessage} />
+            </View>
+            <TouchableOpacity disabled={newMessage ? false : true} style = {{opacity: newMessage ? 1 : 0.3}} onPress={sendMessage}>
               <Icon name="send" color="#328CDB" size={25}/>
             </TouchableOpacity>
           </View>

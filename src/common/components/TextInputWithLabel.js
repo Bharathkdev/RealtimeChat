@@ -8,28 +8,30 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(15),
     fontWeight: '500',
     color: '#000000',
+    fontFamily: 'Poppins-Medium'
   },
   textInputStyle: {
     backgroundColor: '#FFFFFF',
     borderRadius: moderateScale(10),
     height: moderateScale(50),
-    paddingHorizontal: moderateScale(10),
+    paddingHorizontal: moderateScale(15),
     fontSize: moderateScale(14),
     borderWidth: moderateScale(1),
     borderColor: '#CEEAFF',
+    fontFamily: 'Poppins-Regular',
   },
   validationLabelStyle: {
     fontSize: moderateScale(15),
     fontWeight: '500',
     color: '#FE295C',
     paddingVertical: moderateScale(6)
-  }
+  },
 });
 
 export const TextInputWithLabel = (props) => {
 
   return (
-    <View style={[styles.viewStyle, props.viewStyle]}>
+    <View style={props.viewStyle}>
       <Text style={[styles.labelStyle, props.labelStyle]}> {props.label} </Text>
 
       <TextInput

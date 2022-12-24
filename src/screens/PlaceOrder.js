@@ -7,11 +7,10 @@ import ChatIcon from 'react-native-vector-icons/Fontisto';
 import {TextInputWithLabel} from '../common/components/TextInputWithLabel';
 import { Label } from '../common/components/Label';
 import { CustomButton } from '../common/components/CustomButton';
+import { DatePicker } from '../common/components/DatePicker';
 import ChatModal from './ChatModal';
-import NetInfo from "@react-native-community/netinfo";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import DateTimePickerModal from "@react-native-community/datetimepicker";
 
 const styles = StyleSheet.create({
   containerStyle: {
@@ -55,80 +54,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
     elevation: 6,
-  },
-  banner: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: moderateScale(50),
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: moderateScale(20),
-    zIndex: 2,    //to make the banner fixed at the top and the scroll view content go behind it when scrolled
-  },
-  bannerText: {
-    color: 'white', 
-    fontSize: moderateScale(16),
-    fontWeight: '500'
-  },
+  }
 });
 
-export default PlaceOrder = () => {
+export default PlaceOrder = ({offline}) => {
   const [modalVisibility, setModalVisibility] = useState(false);
   const [messagesList, setMessagesList] = useState([]);
   const [newMessageCount, setNewMessageCount] = useState(0);
-  const [isOffline, setOfflineStatus] = useState(false);
-  const [isCalendarVisible, setCalendarVisible] = useState(false);
-  const [date, setDate] = useState(new Date());
   const ws = useRef(null);
-  const isInitialMount = useRef(true);
   const listRef = useRef(null);
   const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
-  const [banner] = useState(new Animated.Value(0));
-
-  useEffect(() => {
-    const removeNetInfoSubscription = NetInfo.addEventListener((state) => {
-      const offline = !(state.isConnected && state.isInternetReachable);
-      console.log("Offline: ", state, offline);
-      setOfflineStatus(offline);
-    });
-  
-    return () => removeNetInfoSubscription();
-  }, []);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      if(isOffline) {
-        Animated.timing(banner, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }).start()
-      } 
-    } else {
-      if(isOffline) {
-        Animated.timing(banner, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }).start()
-      } else {
-        Animated.timing(banner, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-          }).start(() => {
-              Animated.timing(banner, {
-                toValue: 0,
-                duration: 1000,
-                useNativeDriver: true,
-          }).start()
-        })
-      }
-    }
-  }, [isOffline]);
 
   const handleNewMessage = () => {
     if(modalVisibility) {
@@ -140,37 +75,17 @@ export default PlaceOrder = () => {
     setModalVisibility(true);
   };
 
-  const handleDateConfirm = (event, newDate) => {
-      const selectedDate = newDate || new Date();
-
-      console.log('Event picker :', event, newDate);
-      setCalendarVisible(false);
-      setDate(selectedDate);
-  };
-
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
-    ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+    if(!offline) {
+      ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+    }
   }
-
-  const bannerStyle = {
-        transform: [
-        {
-          translateY: banner.interpolate({
-            inputRange: [0, 1],
-            outputRange: [moderateScale(-50), 0],
-          }),
-        }
-      ]
-  }; 
-
 
   return(
       <>
-      <Animated.View style={[styles.banner, bannerStyle, { backgroundColor: isOffline ? '#FF0000' : '#00A300'}]}>
-        <Text style={styles.bannerText}>{isOffline ? "You are offline!" : "You're back online!"}</Text>
-      </Animated.View>
       <ScrollView
         contentContainerStyle = {styles.innerContainerStyle}
+        keyboardShouldPersistTaps={'handled'}
       >
         <Formik
           initialValues = {{ 
@@ -231,19 +146,11 @@ export default PlaceOrder = () => {
                     error = {touched.items && errors.items}
                     viewStyle = {styles.textInputViewStyle}
                   />
-                  <TouchableOpacity onPress={() => {
-                    console.log("TouchableOpacity");
-                    setCalendarVisible(true)}
-                  }>
-                    <Text>Select a date</Text>
-                  </TouchableOpacity>
-                  {isCalendarVisible ? <DateTimePickerModal
-                    mode="date"
-                    value={date}
-                    onChange={handleDateConfirm}
-                    minimumDate={new Date()}
-                    animationType="fade"
-                  /> : null}
+                  
+                  <DatePicker
+                    label = "Expected Delivery Date"
+                    viewStyle = {styles.textInputViewStyle}
+                  /> 
                 </View>
                 <View>
                   <CustomButton 
@@ -279,31 +186,6 @@ export default PlaceOrder = () => {
             );
           }}
         />  
-       
-         {/* <DateTimePickerModal
-          isVisible={isCalendarVisible}
-          mode="date"
-          onConfirm={date => {
-            // Update the deliveryDate field with the selected date
-            //setFieldValue('deliveryDate', date);
-            // Hide the calendar modal
-            setCalendarVisible(false);
-          }}
-          value={new Date()}
-          onCancel={() => setCalendarVisible(false)}
-          // You can customize the calendar style and props here
-          headerTextIOS="Pick a date"
-          cancelTextIOS="Cancel"
-          confirmTextIOS="Confirm"
-          minimumDate={new Date()}
-          maximumDate={new Date(2022, 6, 3)}
-          locale="en_US"
-          display="calendar"
-          textColor="#000000"
-          backgroundColor="#FFFFFF"
-          borderRadius={4}
-          animationType="fade"
-        />  */}
         <ChatModal 
         modalVisible = {modalVisibility}
         hideModal = {() => setModalVisibility(false)}
@@ -311,8 +193,8 @@ export default PlaceOrder = () => {
         webSocket = {ws}
         messageRef = {listRef}
         messagesList = {messagesList}
-        newMessageCount = {newMessageCount}
-        isOffline = {isOffline}  
+        newMessageCount = {newMessageCount} 
+        offline = {offline}
         />
       <WebSocket
         ref={ws}
@@ -327,7 +209,6 @@ export default PlaceOrder = () => {
           handleNewMessage();
         }
         }
-        
       />
       </ScrollView>
       </>
