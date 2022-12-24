@@ -19,11 +19,9 @@ import Lottie
     return animationView;
   }
 
-  @objc func play(animationView: AnimationView) {
+  @objc func play(animationView: AnimationView) { 
     animationView.play(
-      completion: { (success) in
-        RNSplashScreen.setAnimationFinished(true)
-      }
-    );
-  }
+      fromProgress: 0.0, toProgress: 1.0, loopMode: LottieLoopMode.loop, completion: { (success) in RNSplashScreen.setAnimationFinished(true) } 
+      ); 
+    }
 }
