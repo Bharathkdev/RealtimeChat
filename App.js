@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
 export default App = () => {
   
   useEffect(() => {
-    LottieSplashScreen.hide(); // here
+    LottieSplashScreen.hide(); 
   }, []);
   
   return (
