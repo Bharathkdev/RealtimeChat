@@ -20,9 +20,11 @@ const styles = StyleSheet.create({
 });
 export const CustomButton = (props) => {
 
+  const disableButtonStyle = props.disableButton === true ? { opacity: 0.35 } : {};
+
   return (
     <TouchableOpacity
-      style = {[styles.buttonStyle, props.buttonStyle]}
+      style = {{ ...styles.buttonStyle, ...props.buttonStyle, ...disableButtonStyle }}
       onPress = {props.onPress}
       disabled = {props.disableButton}
     >

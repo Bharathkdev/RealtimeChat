@@ -18,6 +18,12 @@ const styles = StyleSheet.create({
     borderWidth: moderateScale(1),
     borderColor: '#CEEAFF',
   },
+  validationLabelStyle: {
+    fontSize: moderateScale(15),
+    fontWeight: '500',
+    color: '#FE295C',
+    paddingVertical: moderateScale(6)
+  }
 });
 
 export const TextInputWithLabel = (props) => {
@@ -27,13 +33,18 @@ export const TextInputWithLabel = (props) => {
       <Text style={[styles.labelStyle, props.labelStyle]}> {props.label} </Text>
 
       <TextInput
-        placeholder={props.placeholder}
-        style={[styles.textInputStyle, props.textInputStyle]}
-        keyboardType={props.keyboardType}
-        value={props.value}
-        maxLength={props.maxLength}
-        onChange={props.onChangeText}
+        placeholder = {props.placeholder}
+        style = {[styles.textInputStyle, props.textInputStyle]}
+        keyboardType = {props.keyboardType}
+        value = {props.value}
+        maxLength = {props.maxLength}
+        onChangeText = {props.onChangeText}
+        onBlur = {props.onBlur}  
       />
+
+      {props.error && (
+        <Text style = {{ ...styles.validationLabelStyle, ...props.validationLabelStyle }}> {props.error} </Text>
+      )}
     </View>
   );
 };
