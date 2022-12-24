@@ -10,9 +10,9 @@ const styles = StyleSheet.create({
   modal: {
     flex: 1,
     backgroundColor: '#F2F3F5',
-    borderRadius: 10,
+    borderRadius: moderateScale(10),
     overflow: 'hidden',
-    padding: 16
+    padding: moderateScale(15),
   },
   modalHeader: {
     flexDirection: 'row',
@@ -21,49 +21,49 @@ const styles = StyleSheet.create({
   },
   filterModal: {
     position: "absolute",
-    top: 60,
-    left: 20,
-    borderRadius: 5,
+    top: moderateScale(60),
+    left: moderateScale(20),
+    borderRadius: moderateScale(5),
     overflow: 'hidden',
     backgroundColor: '#CEEAFF'
   },
   filterOptions: {
-    padding: 10,
-    textAlign: "center",
+    padding: moderateScale(10),
+    textAlign: 'center',
     color: '#000000',
     fontWeight: 'bold',
   },
   filterLine: {
-    borderBottomWidth: 1,
+    borderBottomWidth: moderateScale(1),
     borderBottomColor: 'black',
     borderBottomStyle: 'solid'
   },
   searchBar: {
-    marginLeft: 10,
+    marginLeft: moderateScale(10),
     borderColor: "black",
-    borderWidth: 1,
-    borderRadius: 10,
+    borderWidth: moderateScale(1),
+    borderRadius: moderateScale(10),
     backgroundColor: 'white',
   },
   searchBarInput: {
-    padding: 10
+    padding: moderateScale(10)
   },
   list: {
     flex: 1,
-    marginVertical: 20,
+    marginVertical: moderateScale(10),
   },
   closeButton: {
-    padding: 8
+    padding: moderateScale(8)
   },
   messageView: {
-    padding: 10, 
-    borderRadius: 10,
-    marginBottom: 15,
+    padding: moderateScale(8), 
+    borderRadius: moderateScale(10),
+    marginBottom: moderateScale(15),
     justifyContent: 'flex-end',
   },
   messageText: {
     color: 'black',
-    fontSize: 15
+    fontSize: moderateScale(15)
   },
   messageHeaderView: {
     flex: 1,
@@ -73,17 +73,17 @@ const styles = StyleSheet.create({
   },
   messageNameText: {
     color: '#328CDB', 
-    fontSize: 15, 
-    paddingBottom: 2, 
-    paddingRight: 15,
+    fontSize: moderateScale(15), 
+    paddingBottom: moderateScale(2), 
+    paddingRight: moderateScale(15),
   },
   orderDetailsHeaderText: {
     fontWeight: 'bold',
   },
   floatingIcon: {
     position: 'absolute',
-    right: -5,
-    bottom: -15,
+    right: moderateScale(-5),
+    bottom: moderateScale(-10)
   },
   emptyListView: {
     flex: 1,
@@ -100,15 +100,15 @@ const styles = StyleSheet.create({
   },
   messageInput: {
     flex: 1,
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    marginRight: 10,
+    borderWidth: moderateScale(1),
+    borderRadius: moderateScale(20),
+    paddingHorizontal: moderateScale(20),
+    marginRight: moderateScale(10),
     backgroundColor: '#FFFFFF',
   }
 });
 
-export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, messagesList, resetNewMessageCount, newMessageCount}) => { 
+export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, messagesList, resetNewMessageCount, newMessageCount, isOffline}) => { 
 
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
   const [isSearchBarVisible, setSearchBarVisible] = useState(false);
@@ -172,8 +172,8 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
-      toValue: 0.3,
-      duration: 300,
+      toValue: 1,
+      duration: 200,
       useNativeDriver: true,
     }).start();
   };
@@ -181,7 +181,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   const fadeOut = () => {
     Animated.timing(fadeAnim, {
       toValue: 0,
-      duration: 300,
+      duration: 200,
       useNativeDriver: true,
     }).start();
   };
@@ -213,8 +213,12 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   };
 
   const sendMessage = () => {
-    webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
-    setNewMessage('');
+    if(!isOffline) {
+      webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+      setNewMessage('');
+    } else {
+      alert("You are offline");
+    }
   };
 
   const handleFilterOptions = (option) => {
@@ -332,7 +336,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
               keyExtractor={item => item.id}
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) =>
-              <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? 20 : 0, paddingRight: item.deviceId === deviceId ? 0 : 20}}>
+              <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? moderateScale(20) : 0, paddingRight: item.deviceId === deviceId ? 0 : moderateScale(20)}}>
                   <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? '#CEEAFF' : '#FFFFFF' }}>
                   <View style = {styles.messageHeaderView}>
                       <Text style = {styles.messageNameText}>{(item.name && item.deviceId !== deviceId) ? item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name : (item.deviceId === deviceId) ? 'You' : 'Anonymous'}</Text>
@@ -362,10 +366,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
               Please send a message or place an order or try with another filter.
           </Text>
           </View> }
-          <Animated.View style={{
-          ...styles.floatingIcon,
-          opacity: fadeAnim,  
-          }}>
+          <Animated.View style={{...styles.floatingIcon, opacity: fadeAnim}}>
           <TouchableOpacity onPress = {handleNewMessage}>
               <Icon name="chevron-down-circle-outline" size={40} color="black"/>
           </TouchableOpacity>
@@ -373,8 +374,8 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
           </View>
           <View style = {styles.modalFooter}>
             <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder="Type your message here..." value={newMessage} onChange={handleMessage} />
-            <TouchableOpacity disabled={newMessage ? false : true} style = {{opacity: newMessage ? 1 : 0.3}} onPress={sendMessage}>
-              <Icon name="send" color="black" size={25}/>
+            <TouchableOpacity disabled={(newMessage && !isOffline) ? false : true} style = {{opacity: newMessage && !isOffline ? 1 : 0.3}} onPress={sendMessage}>
+              <Icon name="send" color="#328CDB" size={25}/>
             </TouchableOpacity>
           </View>
         </View>

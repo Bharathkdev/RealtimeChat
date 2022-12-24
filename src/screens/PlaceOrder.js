@@ -11,6 +11,7 @@ import ChatModal from './ChatModal';
 import NetInfo from "@react-native-community/netinfo";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import DateTimePickerModal from "@react-native-community/datetimepicker";
 
 const styles = StyleSheet.create({
   containerStyle: {
@@ -55,6 +56,22 @@ const styles = StyleSheet.create({
     shadowRadius: 4.65,
     elevation: 6,
   },
+  banner: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: moderateScale(50),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: moderateScale(20),
+    zIndex: 2,    //to make the banner fixed at the top and the scroll view content go behind it when scrolled
+  },
+  bannerText: {
+    color: 'white', 
+    fontSize: moderateScale(16),
+    fontWeight: '500'
+  },
 });
 
 export default PlaceOrder = () => {
@@ -62,7 +79,10 @@ export default PlaceOrder = () => {
   const [messagesList, setMessagesList] = useState([]);
   const [newMessageCount, setNewMessageCount] = useState(0);
   const [isOffline, setOfflineStatus] = useState(false);
+  const [isCalendarVisible, setCalendarVisible] = useState(false);
+  const [date, setDate] = useState(new Date());
   const ws = useRef(null);
+  const isInitialMount = useRef(true);
   const listRef = useRef(null);
   const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
   const [banner] = useState(new Animated.Value(0));
@@ -70,7 +90,7 @@ export default PlaceOrder = () => {
   useEffect(() => {
     const removeNetInfoSubscription = NetInfo.addEventListener((state) => {
       const offline = !(state.isConnected && state.isInternetReachable);
-      console.log("Offline: ", offline);
+      console.log("Offline: ", state, offline);
       setOfflineStatus(offline);
     });
   
@@ -78,14 +98,37 @@ export default PlaceOrder = () => {
   }, []);
 
   useEffect(() => {
-    if(isOffline) {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      if(isOffline) {
         Animated.timing(banner, {
-            toValue: isOffline ? 1 : 0,
-            duration: 2000,
-            useNativeDriver: true,
-        }).start();
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }).start()
+      } 
+    } else {
+      if(isOffline) {
+        Animated.timing(banner, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }).start()
+      } else {
+        Animated.timing(banner, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+          }).start(() => {
+              Animated.timing(banner, {
+                toValue: 0,
+                duration: 1000,
+                useNativeDriver: true,
+          }).start()
+        })
+      }
     }
-  }, [isOffline, banner]);
+  }, [isOffline]);
 
   const handleNewMessage = () => {
     if(modalVisibility) {
@@ -97,12 +140,35 @@ export default PlaceOrder = () => {
     setModalVisibility(true);
   };
 
+  const handleDateConfirm = (event, newDate) => {
+      const selectedDate = newDate || new Date();
+
+      console.log('Event picker :', event, newDate);
+      setCalendarVisible(false);
+      setDate(selectedDate);
+  };
+
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
   }
 
+  const bannerStyle = {
+        transform: [
+        {
+          translateY: banner.interpolate({
+            inputRange: [0, 1],
+            outputRange: [moderateScale(-50), 0],
+          }),
+        }
+      ]
+  }; 
+
+
   return(
-   
+      <>
+      <Animated.View style={[styles.banner, bannerStyle, { backgroundColor: isOffline ? '#FF0000' : '#00A300'}]}>
+        <Text style={styles.bannerText}>{isOffline ? "You are offline!" : "You're back online!"}</Text>
+      </Animated.View>
       <ScrollView
         contentContainerStyle = {styles.innerContainerStyle}
       >
@@ -113,7 +179,7 @@ export default PlaceOrder = () => {
             items: '',
             deliveryDate: ''
           }}
-          onSubmit = {() => {}}
+          onSubmit = {() => {}}       // shall we remove this abinaya
           validationSchema = {
             Yup.object().shape({
               customerName: Yup.string().required('Required'),
@@ -165,14 +231,19 @@ export default PlaceOrder = () => {
                     error = {touched.items && errors.items}
                     viewStyle = {styles.textInputViewStyle}
                   />
-                  <TextInputWithLabel
-                    label = "Expected delivery date/time"
-                    value = {values.deliveryDate}
-                    onChangeText = {handleChange("deliveryDate")}
-                    onBlur = {handleBlur("deliveryDate")}
-                    error = {touched.deliveryDate && errors.deliveryDate}
-                    viewStyle = {styles.textInputViewStyle}
-                  />
+                  <TouchableOpacity onPress={() => {
+                    console.log("TouchableOpacity");
+                    setCalendarVisible(true)}
+                  }>
+                    <Text>Select a date</Text>
+                  </TouchableOpacity>
+                  {isCalendarVisible ? <DateTimePickerModal
+                    mode="date"
+                    value={date}
+                    onChange={handleDateConfirm}
+                    minimumDate={new Date()}
+                    animationType="fade"
+                  /> : null}
                 </View>
                 <View>
                   <CustomButton 
@@ -208,6 +279,31 @@ export default PlaceOrder = () => {
             );
           }}
         />  
+       
+         {/* <DateTimePickerModal
+          isVisible={isCalendarVisible}
+          mode="date"
+          onConfirm={date => {
+            // Update the deliveryDate field with the selected date
+            //setFieldValue('deliveryDate', date);
+            // Hide the calendar modal
+            setCalendarVisible(false);
+          }}
+          value={new Date()}
+          onCancel={() => setCalendarVisible(false)}
+          // You can customize the calendar style and props here
+          headerTextIOS="Pick a date"
+          cancelTextIOS="Cancel"
+          confirmTextIOS="Confirm"
+          minimumDate={new Date()}
+          maximumDate={new Date(2022, 6, 3)}
+          locale="en_US"
+          display="calendar"
+          textColor="#000000"
+          backgroundColor="#FFFFFF"
+          borderRadius={4}
+          animationType="fade"
+        />  */}
         <ChatModal 
         modalVisible = {modalVisibility}
         hideModal = {() => setModalVisibility(false)}
@@ -216,9 +312,11 @@ export default PlaceOrder = () => {
         messageRef = {listRef}
         messagesList = {messagesList}
         newMessageCount = {newMessageCount}
+        isOffline = {isOffline}  
         />
       <WebSocket
         ref={ws}
+        reconnect={true}
         url="wss://c208-121-200-48-218.in.ngrok.io"
         onMessage={(event) => {
           console.log("Message event: ", JSON.parse(event.data), messagesList); 
@@ -229,7 +327,9 @@ export default PlaceOrder = () => {
           handleNewMessage();
         }
         }
+        
       />
       </ScrollView>
+      </>
   )
 };
