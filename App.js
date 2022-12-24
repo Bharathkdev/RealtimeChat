@@ -1,6 +1,7 @@
-import React from 'react';
-import {View, StyleSheet, SafeAreaView} from 'react-native';
+import React, {useEffect} from 'react';
+import { StyleSheet, SafeAreaView} from 'react-native';
 import PlaceOrder from './src/screens/PlaceOrder';
+import LottieSplashScreen from "react-native-lottie-splash-screen";
 
 const styles = StyleSheet.create({
   container: {
@@ -10,6 +11,10 @@ const styles = StyleSheet.create({
 });
 
 export default App = () => {
+  
+  useEffect(() => {
+    LottieSplashScreen.hide(); // here
+  }, []);
   
   return (
     <>
