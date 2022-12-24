@@ -102,8 +102,9 @@ const styles = StyleSheet.create({
   messageInput: {
     flex: 1,
     borderWidth: moderateScale(1),
-    borderRadius: moderateScale(20),
+    borderRadius: moderateScale(15),
     paddingHorizontal: moderateScale(20),
+    height: moderateScale(45),
     marginRight: moderateScale(10),
     backgroundColor: '#FFFFFF',
   },
