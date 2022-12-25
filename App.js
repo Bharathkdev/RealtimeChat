@@ -44,7 +44,7 @@ export default App = () => {
   }, []);
   
   useEffect(() => {
-    LottieSplashScreen.hide(); 
+    setTimeout(() => {LottieSplashScreen.hide()}, 2000);
   }, []);
 
   useEffect(() => {

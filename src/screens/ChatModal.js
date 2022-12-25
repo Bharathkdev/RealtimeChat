@@ -131,7 +131,6 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   const [scrollPosition, setScrollPosition] = useState(0);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [hasDataLongerThanScreen, setHasDataLongerThanScreen] = useState(false);
-  const [offlineMessages, setOfflineMessages] = useState([]);
   const input = useRef(null);
   const [searchBarHeight] = useState(new Animated.Value(0));
   const [searchBarWidth] = useState(new Animated.Value(0));
@@ -157,10 +156,10 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
      input.current.focus();
      
      if(filteredData?.length > 0 && newMessageCount !== 0) {
-      setTimeout(() => messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: true}), 1000);
+      setTimeout(() => messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: true}), 500);
      }
      if(newMessageCount === 0) {
-      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: true }), 1000);
+      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: true }), 500);
      }
     }
   }, [modalVisible, input, messageRef]);
@@ -182,15 +181,6 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
     });
     setFilteredData(filteredMessages);
   }, [searchInput, messagesList, filterOption]);
-
-  // useEffect(() => {
-  //   if (!offline && offlineMessages.length > 0) {
-  //     offlineMessages.forEach(message => {
-  //       webSocket.current.send(JSON.stringify(message))
-  //     });
-  //     setOfflineMessages([]);
-  //   }
-  // }, [offline]);
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -235,13 +225,9 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
 
   const sendMessage = () => {
     if(!offline) {
-      webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+      webSocket.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
       setNewMessage('');
     } 
-    // else {
-    //   setOfflineMessages([...offlineMessages, {id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}]);
-    //   setNewMessage('');
-    // }
   };
 
   const handleFilterOptions = (option) => {
@@ -256,13 +242,13 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
       Animated.parallel([
         Animated.timing(searchBarHeight, {
           toValue: 0,    // 0 is the desired height of the search bar
-          duration: 500, // duration of the animation in milliseconds
+          duration: 10, // duration of the animation in milliseconds
           easing: Easing.ease,
           useNativeDriver: false,
         }),
         Animated.timing(searchBarWidth, {
           toValue: 0,    // 0 is the desired width of the search bar
-          duration: 500, 
+          duration: 10, 
           easing: Easing.ease,
           useNativeDriver: false,
         })
@@ -275,12 +261,12 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
       Animated.parallel([
         Animated.timing(searchBarHeight, {
           toValue: 40, // 40 is the desired height of the search bar
-          duration: 500, // duration of the animation in milliseconds
+          duration: 100, // duration of the animation in milliseconds
           useNativeDriver: false,
         }),
         Animated.timing(searchBarWidth, {
           toValue: 210, // 210 is the desired width of the search bar
-          duration: 500, 
+          duration: 100, 
           useNativeDriver: false,
         })
       ]).start();

@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { KeyboardAvoidingView, View, StyleSheet, Animated, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
-import WebSocket from 'react-native-websocket';
 import DeviceInfo from 'react-native-device-info';
 import { moderateScale } from 'react-native-size-matters';
 import ChatIcon from 'react-native-vector-icons/Fontisto';
@@ -61,9 +60,40 @@ export default PlaceOrder = ({offline}) => {
   const [modalVisibility, setModalVisibility] = useState(false);
   const [messagesList, setMessagesList] = useState([]);
   const [newMessageCount, setNewMessageCount] = useState(0);
-  const ws = useRef(null);
+  const [ws, setWS] = useState(null);
   const listRef = useRef(null);
   const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
+
+  const updateMessageList = (event) => {
+    console.log("Message event: ", JSON.parse(event.data), messagesList); 
+    setMessagesList((messagesList) => {
+      return [...messagesList, JSON.parse(event.data)];
+    })
+  }
+
+  const handleWebSocketSetup = () => {
+    console.log("Netwok statuis: " , offline);
+    const webSocketClient = new WebSocket("wss://b3f0-183-83-148-32.in.ngrok.io");
+    webSocketClient.onmessage = updateMessageList;
+    webSocketClient.onclose = !offline ? handleWebSocketSetup : webSocketClient.close();
+    setWS(webSocketClient);
+    return webSocketClient;
+  }
+
+  useEffect(() => {
+      const client = handleWebSocketSetup();
+
+      return () => client.close();
+  }, [offline]);
+
+  useEffect(() => {
+    if(!modalVisibility && messagesList.length > 0) {
+      setNewMessageCount((newMessageCount) => {
+        return newMessageCount + 1;
+      })
+    }
+    handleNewMessage();
+  }, [messagesList])
 
   const handleNewMessage = () => {
     if(modalVisibility) {
@@ -77,12 +107,11 @@ export default PlaceOrder = ({offline}) => {
 
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
-      ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+      ws.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
     }
   }
 
   return(
-      <>
       <ScrollView
         contentContainerStyle = {styles.innerContainerStyle}
         keyboardShouldPersistTaps={'handled'}
@@ -103,7 +132,7 @@ export default PlaceOrder = ({offline}) => {
                 .min(10, 'Enter a valid phone number')
                 .matches(/^\d+$/, 'Enter a valid phone number'),
               items: Yup.string().required('Required'),
-              deliveryDate: Yup.string().required('Required'),
+              deliveryDate: Yup.string(),
             })
           }
           validateOnMount
@@ -196,21 +225,6 @@ export default PlaceOrder = ({offline}) => {
         newMessageCount = {newMessageCount} 
         offline = {offline}
         />
-      <WebSocket
-        ref={ws}
-        reconnect={true}
-        url="wss://c208-121-200-48-218.in.ngrok.io"
-        onMessage={(event) => {
-          console.log("Message event: ", JSON.parse(event.data), messagesList); 
-          setMessagesList([...messagesList, JSON.parse(event.data)]);
-          if(!modalVisibility && JSON.parse(event.data)) {
-            setNewMessageCount(newMessageCount + 1);
-          }
-          handleNewMessage();
-        }
-        }
-      />
       </ScrollView>
-      </>
   )
 };
