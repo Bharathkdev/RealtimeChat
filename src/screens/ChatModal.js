@@ -276,10 +276,8 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
 
   const handleMessageTimestamp = (timestamp) => {
     const date = new Date(timestamp);
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     const options = {
-      timeZone: timezone,
       hour: 'numeric',
       minute: 'numeric',
       hour12: true,
@@ -361,7 +359,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
                           {"\n"}
                           Order Items: {item.itemsPlaced}
                           {"\n"}
-                          Expected Delivery date: {item.delivery}
+                          Expected Delivery date: {new Date(item.delivery).toLocaleDateString()}
                           </Text> 
                       </> : 
                       <Text style = {styles.messageText}>{item.message}</Text>

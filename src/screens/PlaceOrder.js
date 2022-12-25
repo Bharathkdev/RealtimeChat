@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(16),
   },
   iconContainerStyle: {
+    marginVertical: moderateScale(30),
     padding: moderateScale(10),
     alignItems: 'flex-end',
   },
@@ -36,19 +37,19 @@ const styles = StyleSheet.create({
     borderWidth: moderateScale(2),
     borderColor: "#4AADE8",
     backgroundColor: "#FFFFFF",
-    justifyContent: 'center',
+    justifyContent: Platform.OS === 'android' ? 'flex-end' : 'center',
     alignItems: 'center',
-    right: moderateScale(-5),
-    top: moderateScale(-5),
+    right: moderateScale(-15),
+    top: moderateScale(-15),
   },
   iconStyle: {
     padding: moderateScale(10),
     borderRadius: moderateScale(10),
-    backgroundColor: 'transparent',
+    backgroundColor: '#FFFFFF',
     shadowColor: "#000",
     shadowOffset: {
-    	width: 0,
-    	height: 3,
+      width: 0,
+      height: 3,
     },
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
@@ -131,13 +132,13 @@ export default PlaceOrder = ({offline}) => {
                 .min(10, 'Enter a valid phone number')
                 .matches(/^\d+$/, 'Enter a valid phone number'),
               items: Yup.string().required('Required'),
-              deliveryDate: Yup.string(),
+              deliveryDate: Yup.string().required('Required'),
             })
           }
           validateOnMount
           validateOnBlur
           validateOnChange
-          component = {({ handleChange, handleBlur, touched, values, errors, isValid }) => {
+          component = {({ handleChange, handleBlur, touched, values, errors, isValid, setFieldValue }) => {
             return (
               <KeyboardAvoidingView
                 keyboardVerticalOffset = {Platform.select({ ios: 0, android: 0 })}
@@ -178,9 +179,14 @@ export default PlaceOrder = ({offline}) => {
                   <DatePicker
                     label = "Expected Delivery Date"
                     viewStyle = {styles.textInputViewStyle}
+                    value = {values.deliveryDate}
+                    mode = {"date"}
+                    onChange = {(value) => {
+                      setFieldValue("deliveryDate", value);
+                    }}
                   /> 
                 </View>
-                <View>
+                <View style = {{marginVertical: moderateScale(10)}}>
                   <CustomButton 
                     title = "Place order" 
                     disableButton = {!isValid}
@@ -190,7 +196,7 @@ export default PlaceOrder = ({offline}) => {
                       values.phoneNumber, 
                       values.items, 
                       values.deliveryDate
-                    )} 
+                    )}
                   />
                 </View>
                 <View>
@@ -199,7 +205,9 @@ export default PlaceOrder = ({offline}) => {
                       onPress={toggleModal}
                       activeOpacity = {1}
                     >
-                      <ChatIcon name="hipchat" color='#4AADE8' size={45} style={styles.iconStyle}/>
+                      <View style={styles.iconStyle}>
+                        <ChatIcon name="hipchat" color='#4AADE8' size={45} />
+                      </View>
                       {
                         newMessageCount !== 0 &&
                         <View style = {styles.badgeViewStyle}>

@@ -36,12 +36,11 @@ const styles = StyleSheet.create({
 
 export const DatePicker = (props) => {
   const [calendarVisibility, setCalendarVisibility] = useState(false);
-  const [date, setDate] = useState(new Date());
 
   const handleDateConfirm = (event, newDate) => {
         const selectedDate = newDate || new Date();
         setCalendarVisibility(false);
-        setDate(selectedDate);
+        props.onChange(selectedDate)
   };  
 
   return (
@@ -54,16 +53,19 @@ export const DatePicker = (props) => {
       activeOpacity = {1}
       style = {{ ...styles.textWrapperStyle}}>
         <Text style = {styles.textStyle}>
-          {date.toLocaleDateString()}
+          {props.value ? props.value.toLocaleDateString() : ''}
         </Text>
       </TouchableOpacity>
-      {calendarVisibility ? <DateTimePickerModal
-        mode="date"
-        value={date}
-        onChange={handleDateConfirm}
-        minimumDate={new Date()}
-        animationType="fade"
-       /> : null}
+      {calendarVisibility ? 
+      <DateTimePickerModal
+        mode = {props.mode}
+        value = {new Date()}
+        onChange = {handleDateConfirm}
+        minimumDate = {new Date()}
+        animationType = "fade"
+       /> 
+       : 
+      null}
       {props.error && (
         <Text style = {{ ...styles.validationLabelStyle, ...props.validationLabelStyle }}> {props.error} </Text>
       )}
