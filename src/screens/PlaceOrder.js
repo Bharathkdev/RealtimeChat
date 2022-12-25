@@ -71,17 +71,16 @@ export default PlaceOrder = ({offline}) => {
     })
   }
 
-  const handleWebSocketSetup = () => {
-    console.log("Netwok statuis: " , offline);
+  const handleWebSocketSetup = (isOffline) => {
     const webSocketClient = new WebSocket("wss://b3f0-183-83-148-32.in.ngrok.io");
     webSocketClient.onmessage = updateMessageList;
-    webSocketClient.onclose = !offline ? handleWebSocketSetup : webSocketClient.close();
+    webSocketClient.onclose = !isOffline ? handleWebSocketSetup : webSocketClient.close();
     setWS(webSocketClient);
     return webSocketClient;
   }
 
   useEffect(() => {
-      const client = handleWebSocketSetup();
+      const client = handleWebSocketSetup(offline);
 
       return () => client.close();
   }, [offline]);
