@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
 },
 });
 
-export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, messagesList, resetNewMessageCount, newMessageCount, offline}) => { 
+export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocket, messageRef, messagesList, resetNewMessageCount, newMessageCount, offline}) => { 
 
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
   const [isSearchBarVisible, setSearchBarVisible] = useState(false);
@@ -143,6 +143,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
     {option: 'My Messages', value: 'myMessage'}];
 
   useEffect(() => {
+
     console.log("scroll position: ", scrollPosition);
     if (filteredData?.length > 0 && hasDataLongerThanScreen && scrollPosition >= 0 && scrollPosition < 0.99) {
       fadeIn();
@@ -152,7 +153,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   }, [scrollPosition, filteredData, hasDataLongerThanScreen]);
 
   useEffect(() => {
-    if(modalVisible) {
+    if(chatModalVisible) {
      input.current.focus();
      
      if(filteredData?.length > 0 && newMessageCount !== 0) {
@@ -162,7 +163,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
       setTimeout(() => messageRef?.current?.scrollToEnd({ animated: true }), 500);
      }
     }
-  }, [modalVisible, input, messageRef]);
+  }, [chatModalVisible, input, messageRef]);
 
   useEffect(() => {
     
@@ -207,13 +208,13 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
   };
 
   const handleNewMessage = () => {
-    if(modalVisible) {
+    if(chatModalVisible) {
       setTimeout(() => messageRef?.current?.scrollToEnd({ animated: true }), 500);
     }
   };
 
   const closeModal = () => {
-    hideModal();
+    hideChatModal();
     resetNewMessageCount();
     setSearchBarVisible(false);
     setSearchInput("");
@@ -225,7 +226,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
 
   const sendMessage = () => {
     if(!offline) {
-      webSocket.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+      webSocket.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, userName, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
       setNewMessage('');
     } 
   };
@@ -288,9 +289,24 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
     return formattedTimestamp;
   }
 
+  const handleUserName = (userDeviceId, messageSentBy) => {
+    if(userDeviceId === deviceId) {
+      return 'You';
+    }
+    if(messageSentBy) {
+      if(messageSentBy.length > 30) {
+        return messageSentBy.substring(0, 30) + '...';
+      } else {
+        return messageSentBy;
+      } 
+    } else {
+      return 'Anonymous';
+    }
+  }
+
     return (
         <Modal 
-        isVisible={modalVisible} 
+        isVisible={chatModalVisible} 
         backdropTransitionOutTiming={0}
         animationIn="slideInUp" 
         animationOut="slideOutDown"
@@ -346,7 +362,7 @@ export default ChatModal = ({modalVisible, hideModal, webSocket, messageRef, mes
               <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? moderateScale(20) : 0, paddingRight: item.deviceId === deviceId ? 0 : moderateScale(20)}}>
                   <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? '#CEEAFF' : '#FFFFFF' }}>
                   <View style = {styles.messageHeaderView}>
-                      <Text style = {styles.messageNameText}>{(item.name && item.deviceId !== deviceId) ? item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name : (item.deviceId === deviceId) ? 'You' : 'Anonymous'}</Text>
+                      <Text style = {styles.messageNameText}>{handleUserName(item.deviceId, item.userName)}</Text>
                       <Text>{handleMessageTimestamp(item.time)}</Text>
                   </View>
                   {item.type === 'order' ? 

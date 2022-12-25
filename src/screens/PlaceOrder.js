@@ -10,6 +10,7 @@ import { DatePicker } from '../common/components/DatePicker';
 import ChatModal from './ChatModal';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import NameModal from './NameModal';
 
 const styles = StyleSheet.create({
   containerStyle: {
@@ -58,8 +59,10 @@ const styles = StyleSheet.create({
 });
 
 export default PlaceOrder = ({offline}) => {
-  const [modalVisibility, setModalVisibility] = useState(false);
+  const [chatModalVisibility, setChatModalVisibility] = useState(false);
+  const [nameModalVisibility, setNameModalVisibility] = useState(true);
   const [messagesList, setMessagesList] = useState([]);
+  const [userName, setUserName] = useState('');
   const [newMessageCount, setNewMessageCount] = useState(0);
   const [ws, setWS] = useState(null);
   const listRef = useRef(null);
@@ -75,7 +78,10 @@ export default PlaceOrder = ({offline}) => {
   const handleWebSocketSetup = (isOffline) => {
     const webSocketClient = new WebSocket("wss://b3f0-183-83-148-32.in.ngrok.io");
     webSocketClient.onmessage = updateMessageList;
-    webSocketClient.onclose = !isOffline ? handleWebSocketSetup : webSocketClient.close();
+    webSocketClient.onclose = () => {
+      console.log("Connection closed");
+      !isOffline ? handleWebSocketSetup : webSocketClient.close();
+    }
     setWS(webSocketClient);
     return webSocketClient;
   }
@@ -87,7 +93,7 @@ export default PlaceOrder = ({offline}) => {
   }, [offline]);
 
   useEffect(() => {
-    if(!modalVisibility && messagesList.length > 0) {
+    if(!chatModalVisibility && messagesList.length > 0) {
       setNewMessageCount((newMessageCount) => {
         return newMessageCount + 1;
       })
@@ -96,18 +102,18 @@ export default PlaceOrder = ({offline}) => {
   }, [messagesList])
 
   const handleNewMessage = () => {
-    if(modalVisibility) {
+    if(chatModalVisibility) {
       setTimeout(() => listRef?.current?.scrollToEnd({ animated: true }), 500);
     }
   };
 
   const toggleModal = () => {
-    setModalVisibility(true);
+    setChatModalVisibility(true);
   };
 
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
-      ws.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+      ws.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
     }
   }
 
@@ -223,14 +229,22 @@ export default PlaceOrder = ({offline}) => {
           }}
         />  
         <ChatModal 
-        modalVisible = {modalVisibility}
-        hideModal = {() => setModalVisibility(false)}
+        chatModalVisible = {chatModalVisibility}
+        hideChatModal = {() => setChatModalVisibility(false)}
         resetNewMessageCount = {() => setNewMessageCount(0)}
         webSocket = {ws}
         messageRef = {listRef}
         messagesList = {messagesList}
         newMessageCount = {newMessageCount} 
         offline = {offline}
+        userName = {userName}
+        />
+        <NameModal 
+        nameModalVisible = {nameModalVisibility}
+        handleNameSubmit = {(name) => {
+          setNameModalVisibility(false);
+          setUserName(name);
+        }}
         />
       </ScrollView>
   )
