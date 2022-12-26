@@ -135,7 +135,6 @@ export default PlaceOrder = ({offline}) => {
   };
 
   const updateMessageList = (event) => {
-    console.log("Message event: ", JSON.parse(event.data), messagesList); 
     setMessagesList((messagesList) => {
       return [...messagesList, JSON.parse(event.data)];
     })
@@ -258,7 +257,7 @@ export default PlaceOrder = ({offline}) => {
                       activeOpacity = {1}
                     >
                       <View style={styles.iconStyle}>
-                        <ChatIcon name="hipchat" color={colors.tertiary} size={45} />
+                        <ChatIcon name="hipchat" color={colors.tertiary} size={moderateScale(45)} />
                       </View>
                       {
                         newMessageCount !== 0 &&

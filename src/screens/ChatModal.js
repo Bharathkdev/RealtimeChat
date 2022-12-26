@@ -347,7 +347,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               </Modal>
 
               <TouchableOpacity style = {{marginLeft: 20}} onPress={searchBarHandler}>
-                  <MaterialIcon name= {isSearchBarVisible ? "search-off" : "search"} color="black" size={25}/>
+                  <MaterialIcon name= {isSearchBarVisible ? "search-off" : "search"} color="black" size={moderateScale(25)}/>
               </TouchableOpacity> 
 
               {isSearchBarVisible ? 
@@ -379,6 +379,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               keyExtractor={item => item.id}
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) =>
+
               <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? moderateScale(20) : 0, paddingRight: item.deviceId === deviceId ? 0 : moderateScale(20)}}>
                 <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? colors.base : colors.defaultLight }}>
                   <View style = {styles.messageHeaderView}>
@@ -404,18 +405,22 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
             }
             <Animated.View style={{...styles.floatingIcon, opacity: fadeAnim}}>
               <TouchableOpacity onPress = {handleNewMessage}>
-                <Icon name="chevron-down-circle-outline" size={40} color="black"/>
+                <Icon name="chevron-down-circle-outline" size={moderateScale(40)} color="black"/>
               </TouchableOpacity>
             </Animated.View>
           </View>
 
           <View style = {styles.modalFooter}>
             <View style={styles.textInputWithIcon}>
-              {offline ? <Feather style = {styles.wifiOffIcon} name="wifi-off" color="red" size={25}/> : null}
+              {offline ? 
+                <Feather style = {styles.wifiOffIcon} name="wifi-off" color="red" size={moderateScale(25)}/> 
+                : 
+                null
+              }
               <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder="Type your message here..." value={newMessage} onChange={handleMessage} />
             </View>
-            <TouchableOpacity disabled={(newMessage && !offline ) ? false : true} style = {{opacity: (newMessage && !offline )   ? 1 : 0.3}} onPress={sendMessage}>
-              <Icon name="send" color = {colors.primary} size = {25}/>
+            <TouchableOpacity disabled={(newMessage && !offline ) ? false : true} style = {{opacity: (newMessage && !offline ) ? 1 : 0.3}} onPress={sendMessage}>
+              <Icon name="send" color = {colors.primary} size = {moderateScale(25)}/>
             </TouchableOpacity>
           </View>
         </View>
