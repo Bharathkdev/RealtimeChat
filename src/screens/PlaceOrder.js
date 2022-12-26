@@ -66,7 +66,6 @@ export default PlaceOrder = ({offline}) => {
   const [userName, setUserName] = useState('');
   const [newMessageCount, setNewMessageCount] = useState(0);
   const ws = useRef(null);
-  const listRef = useRef(null);
   const secondInputRef = useRef(null);
   const thirdInputRef = useRef(null);
   const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
@@ -111,7 +110,6 @@ export default PlaceOrder = ({offline}) => {
         return newMessageCount + 1;
       })
     }
-    handleNewMessage();
   }, [messagesList]);
 
    // Function to attempt to reconnect to the WebSocket server
@@ -138,12 +136,6 @@ export default PlaceOrder = ({offline}) => {
       return [...messagesList, JSON.parse(event.data)];
     })
   }
-
-  const handleNewMessage = () => {
-    if(chatModalVisibility) {
-      setTimeout(() => listRef?.current?.scrollToEnd({ animated: false }), 200);
-    }
-  };
 
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
@@ -283,7 +275,6 @@ export default PlaceOrder = ({offline}) => {
         hideChatModal = {() => setChatModalVisibility(false)}
         resetNewMessageCount = {() => setNewMessageCount(0)}
         webSocket = {ws}
-        messageRef = {listRef}
         messagesList = {messagesList}
         newMessageCount = {newMessageCount} 
         offline = {offline}
