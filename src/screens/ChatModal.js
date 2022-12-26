@@ -157,15 +157,15 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   useEffect(() => {
     const lowerCaseSearchInput = searchInput.toLowerCase();
     const filteredMessages = messagesList?.filter((item) =>
-      item.message?.toLowerCase().includes(lowerCaseSearchInput) ||
-      item.name?.toLowerCase().includes(lowerCaseSearchInput) ||
-      item.contact?.toLowerCase().includes(lowerCaseSearchInput) ||
-      item.itemsPlaced?.toLowerCase().includes(lowerCaseSearchInput) ||
+      item?.message?.toLowerCase().includes(lowerCaseSearchInput) ||
+      item?.name?.toLowerCase().includes(lowerCaseSearchInput) ||
+      item?.contact?.toLowerCase().includes(lowerCaseSearchInput) ||
+      item?.itemsPlaced?.toLowerCase().includes(lowerCaseSearchInput) ||
       new Date(item.delivery).toLocaleDateString()?.includes(lowerCaseSearchInput) 
     ).filter((item) => {
-      if(filterOption === 'all' || filterOption === item.type) return item 
-      if(filterOption === 'myOrder' && item.type === 'order' && item.deviceId === deviceId) return item
-      if(filterOption === 'myMessage' && item.type === 'message' && item.deviceId === deviceId) return item
+      if(filterOption === 'all' || filterOption === item?.type) return item 
+      if(filterOption === 'myOrder' && item?.type === 'order' && item?.deviceId === deviceId) return item
+      if(filterOption === 'myMessage' && item?.type === 'message' && item?.deviceId === deviceId) return item
     });
     setFilteredData(filteredMessages);
   }, [searchInput, messagesList, filterOption]);
@@ -310,7 +310,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
       return strings.ChatModal.you;
     }
     if(messageSentBy) {
-      if(messageSentBy.length > 15) {
+      if(messageSentBy?.length > 15) {
         return messageSentBy.substring(0, 15) + '...';
       } else {
         return messageSentBy;
@@ -342,9 +342,9 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
                 visible={isFilterModalVisible}
                 onBackdropPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
                 {filters.map(filter => (
-                  <TouchableOpacity activeOpacity={0.7} key={filter.option} style={{backgroundColor: filterOption === filter.value ? colors.filterSelection : colors.base}} onPress={() => handleFilterOptions(filter.value)}>
-                    <Label title={filter.option} labelStyle = {styles.filterOptions}/>
-                    {filter.option !== 'My Messages' ? <View style={styles.filterLine}></View> : null}
+                  <TouchableOpacity activeOpacity={0.7} key={filter?.option} style={{backgroundColor: filterOption === filter?.value ? colors.filterSelection : colors.base}} onPress={() => handleFilterOptions(filter?.value)}>
+                    <Label title={filter?.option} labelStyle = {styles.filterOptions}/>
+                    {filter?.option !== 'My Messages' ? <View style={styles.filterLine}></View> : null}
                   </TouchableOpacity>
                 )
                 )}
@@ -384,19 +384,19 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) =>
 
-              <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? moderateScale(20) : 0, paddingRight: item.deviceId === deviceId ? 0 : moderateScale(20)}}>
-                <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? colors.base : colors.defaultLight }}>
+              <View style={{flexDirection: 'row', justifyContent: item?.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item?.deviceId === deviceId ? moderateScale(20) : 0, paddingRight: item?.deviceId === deviceId ? 0 : moderateScale(20)}}>
+                <View style={{...styles.messageView,  backgroundColor: item?.deviceId === deviceId ? colors.base : colors.defaultLight }}>
                   <View style = {styles.messageHeaderView}>
-                    <Label title={handleUserName(item.deviceId, item.userName)} labelStyle = {styles.messageNameText}/>
-                    <Label title={handleMessageTimestamp(item.time)} labelStyle = {styles.messageTimeText}/>
+                    <Label title={handleUserName(item?.deviceId, item?.userName)} labelStyle = {styles.messageNameText}/>
+                    <Label title={handleMessageTimestamp(item?.time)} labelStyle = {styles.messageTimeText}/>
                   </View>
                   {item.type === 'order' ? 
                     <View>
-                      <Label title={`${item.name} ${strings.ChatModal.orderDetails}`} labelStyle = {[styles.messageTimeText, {color: colors.defaultDark}]}/>
-                      <Label title={`${strings.ChatModal.customerName}: ${item.name} \n ${strings.ChatModal.mobile}: ${item.contact} \n ${strings.ChatModal.orderItems}: ${item.itemsPlaced} \n ${strings.ChatModal.deliveryDate}: ${new Date(item.delivery).toLocaleDateString()}`} labelStyle = {styles.messageText}/> 
+                      <Label title={`${item?.name} ${strings.ChatModal.orderDetails}`} labelStyle = {[styles.messageTimeText, {color: colors.defaultDark}]}/>
+                      <Label title={`${strings.ChatModal.customerName}: ${item?.name} \n ${strings.ChatModal.mobile}: ${item?.contact} \n ${strings.ChatModal.orderItems}: ${item?.itemsPlaced} \n ${strings.ChatModal.deliveryDate}: ${new Date(item?.delivery).toLocaleDateString()}`} labelStyle = {styles.messageText}/> 
                     </View> 
                     : 
-                    <Label title={item.message} labelStyle = {styles.messageText}/>
+                    <Label title={item?.message} labelStyle = {styles.messageText}/>
                   }
                 </View> 
               </View>

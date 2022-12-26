@@ -51,7 +51,7 @@ export default App = () => {
 
   // To animate network banner
   useEffect(() => {
-    if (isInitialMount.current) {
+    if (isInitialMount?.current) {
       isInitialMount.current = false;
       if(isOffline) {
         Animated.timing(banner, {
