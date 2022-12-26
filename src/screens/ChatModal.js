@@ -6,11 +6,12 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { moderateScale } from 'react-native-size-matters';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import colors from "../common/colors";
 
 const styles = StyleSheet.create({
   modal: {
     flex: 1,
-    backgroundColor: '#F2F3F5',
+    backgroundColor: colors.secondary,
     borderRadius: moderateScale(10),
     overflow: 'hidden',
     padding: moderateScale(15),
@@ -27,12 +28,12 @@ const styles = StyleSheet.create({
     left: moderateScale(20),
     borderRadius: moderateScale(5),
     overflow: 'hidden',
-    backgroundColor: '#CEEAFF'
+    backgroundColor: colors.base
   },
   filterOptions: {
     padding: moderateScale(10),
     textAlign: 'center',
-    color: '#000000',
+    color: colors.defaultDark,
     fontFamily: 'Poppins-SemiBold'
   },
   filterLine: {
@@ -75,7 +76,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   messageNameText: {
-    color: '#328CDB', 
+    color: colors.primary, 
     fontSize: moderateScale(15), 
     paddingBottom: moderateScale(2), 
     paddingRight: moderateScale(15),
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: moderateScale(20),
     height: moderateScale(45),
     marginRight: moderateScale(10),
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.defaultLight
   },
   textInputWithIcon: {
       flex: 1,
@@ -312,7 +313,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   }
 
     return (
-        <Modal 
+      <Modal 
         isVisible={chatModalVisible} 
         backdropTransitionOutTiming={0}
         animationIn="slideInUp" 
@@ -327,92 +328,101 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               <TouchableOpacity onPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
                   <Icon name="filter" color="black" size={25}/>
               </TouchableOpacity>
+
               <Modal 
-                  style={styles.filterModal}
-                  visible={isFilterModalVisible}
-                  onBackdropPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
-                  {filters.map(filter => (
-                    <TouchableOpacity activeOpacity={0.7} key={filter.option} style={{backgroundColor: filterOption === filter.value ? '#C5C7C4' : '#CEEAFF'}} onPress={() => handleFilterOptions(filter.value)}>
-                      <Text style = {styles.filterOptions}>{filter.option}</Text>
-                      {filter.option !== 'My Messages' ? <View style={styles.filterLine}></View> : null}
-                    </TouchableOpacity>
-                  )
-                  )}
+                style={styles.filterModal}
+                visible={isFilterModalVisible}
+                onBackdropPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
+                {filters.map(filter => (
+                  <TouchableOpacity activeOpacity={0.7} key={filter.option} style={{backgroundColor: filterOption === filter.value ? colors.filterSelection : colors.base}} onPress={() => handleFilterOptions(filter.value)}>
+                    <Text style = {styles.filterOptions}>{filter.option}</Text>
+                    {filter.option !== 'My Messages' ? <View style={styles.filterLine}></View> : null}
+                  </TouchableOpacity>
+                )
+                )}
               </Modal>
+
               <TouchableOpacity style = {{marginLeft: 20}} onPress={searchBarHandler}>
                   <MaterialIcon name= {isSearchBarVisible ? "search-off" : "search"} color="black" size={25}/>
               </TouchableOpacity> 
-              {isSearchBarVisible ? <Animated.View style={[styles.searchBar,  {height: searchBarHeight, width: searchBarWidth} ]}>
+
+              {isSearchBarVisible ? 
+                <Animated.View style={[styles.searchBar,  {height: searchBarHeight, width: searchBarWidth} ]}>
                   <TextInput
-                  autoFocus
-                  value={searchInput}
-                  onChangeText={setSearchInput}
-                  placeholder="Search"
-                  style={styles.searchBarInput}
+                    autoFocus
+                    value={searchInput}
+                    onChangeText={setSearchInput}
+                    placeholder="Search"
+                    style={styles.searchBarInput}
                   />
-              </Animated.View> : null}
+                </Animated.View> 
+              : null}
             </View>
-              <TouchableOpacity onPress={closeModal} style = {styles.closeButton}>
+            <TouchableOpacity onPress={closeModal} style = {styles.closeButton}>
               <Icon name="close" color="black" size={25}/>
-              </TouchableOpacity>
-            </View>  
+            </TouchableOpacity>
+          </View>  
+
           <View style={styles.list}>
-          {filteredData?.length > 0 ? <FlatList
+            {filteredData?.length > 0 ? 
+            <FlatList
               ref={messageRef}
               onScroll={handleScroll}
               onScrollToIndexFailed={(info) => {
-              console.log(`Failed to scroll to index ${JSON.stringify(info)}.`);
+                console.log(`Failed to scroll to index ${JSON.stringify(info)}.`);
               }}
               data={filteredData}
               keyExtractor={item => item.id}
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) =>
               <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? moderateScale(20) : 0, paddingRight: item.deviceId === deviceId ? 0 : moderateScale(20)}}>
-                  <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? '#CEEAFF' : '#FFFFFF' }}>
+                <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? colors.base : colors.defaultLight }}>
                   <View style = {styles.messageHeaderView}>
-                      <Text style = {styles.messageNameText}>{handleUserName(item.deviceId, item.userName)}</Text>
-                      <Text style = {styles.messageTimeText}>{handleMessageTimestamp(item.time)}</Text>
+                    <Text style = {styles.messageNameText}>{handleUserName(item.deviceId, item.userName)}</Text>
+                    <Text style = {styles.messageTimeText}>{handleMessageTimestamp(item.time)}</Text>
                   </View>
                   {item.type === 'order' ? 
-                      <>
-                          <Text style = {styles.orderDetailsHeaderText}>{item.name} order details:</Text>
-                          <Text style = {styles.messageText}>
-                            Customer Name: {item.name}
-                            {"\n"}
-                            Mobile: {item.contact}
-                            {"\n"}
-                            Order Items: {item.itemsPlaced}
-                            {"\n"}
-                            Expected Delivery date: {new Date(item.delivery).toLocaleDateString()}
-                          </Text> 
-                      </> : 
-                      <Text style = {styles.messageText}>{item.message}</Text>
-                      }
-                  </View> 
+                    <>
+                      <Text style = {styles.orderDetailsHeaderText}>{item.name} order details:</Text>
+                      <Text style = {styles.messageText}>
+                        Customer Name: {item.name}
+                        {"\n"}
+                        Mobile: {item.contact}
+                        {"\n"}
+                        Order Items: {item.itemsPlaced}
+                        {"\n"}
+                        Expected Delivery date: {new Date(item.delivery).toLocaleDateString()}
+                      </Text> 
+                    </> 
+                    : 
+                    <Text style = {styles.messageText}>{item.message}</Text>
+                  }
+                </View> 
               </View>
               }
-          /> : <View style={styles.emptyListView}>
-          <Text style={styles.emptyText}>No messages/orders yet. 
-              {"\n"}
-              Please send a message or place an order or try with another filter.
-          </Text>
-          </View> }
-          <Animated.View style={{...styles.floatingIcon, opacity: fadeAnim}}>
-          <TouchableOpacity onPress = {handleNewMessage}>
-              <Icon name="chevron-down-circle-outline" size={40} color="black"/>
-          </TouchableOpacity>
-          </Animated.View>
+            /> 
+            : 
+            <View style={styles.emptyListView}>
+              <Text style={styles.emptyText}>No messages/orders yet.{"\n"}Please send a message or place an order or try with another filter.</Text>
+            </View> 
+            }
+            <Animated.View style={{...styles.floatingIcon, opacity: fadeAnim}}>
+              <TouchableOpacity onPress = {handleNewMessage}>
+                <Icon name="chevron-down-circle-outline" size={40} color="black"/>
+              </TouchableOpacity>
+            </Animated.View>
           </View>
+
           <View style = {styles.modalFooter}>
             <View style={styles.textInputWithIcon}>
               {offline ? <Feather style = {styles.wifiOffIcon} name="wifi-off" color="red" size={25}/> : null}
               <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder="Type your message here..." value={newMessage} onChange={handleMessage} />
             </View>
             <TouchableOpacity disabled={newMessage ? false : true} style = {{opacity: newMessage ? 1 : 0.3}} onPress={sendMessage}>
-              <Icon name="send" color="#328CDB" size={25}/>
+              <Icon name="send" color={colors.primary} size={25}/>
             </TouchableOpacity>
           </View>
         </View>
-        </Modal>
+      </Modal>
     )
 };

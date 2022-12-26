@@ -11,6 +11,7 @@ import ChatModal from './ChatModal';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import NameModal from './NameModal';
+import colors from '../common/colors';
 
 const styles = StyleSheet.create({
   containerStyle: {
@@ -36,8 +37,8 @@ const styles = StyleSheet.create({
     minWidth:moderateScale(32),
     borderRadius: moderateScale(16),
     borderWidth: moderateScale(2),
-    borderColor: "#4AADE8",
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.tertiary,
+    backgroundColor: colors.defaultLight,
     justifyContent: Platform.OS === 'android' ? 'flex-end' : 'center',
     alignItems: 'center',
     right: moderateScale(-15),
@@ -46,8 +47,8 @@ const styles = StyleSheet.create({
   iconStyle: {
     padding: moderateScale(10),
     borderRadius: moderateScale(10),
-    backgroundColor: '#FFFFFF',
-    shadowColor: "#000",
+    backgroundColor: colors.defaultLight,
+    shadowColor: colors.defaultDark,
     shadowOffset: {
       width: 0,
       height: 3,
@@ -284,7 +285,7 @@ export default PlaceOrder = ({offline}) => {
                       activeOpacity = {1}
                     >
                       <View style={styles.iconStyle}>
-                        <ChatIcon name="hipchat" color='#4AADE8' size={45} />
+                        <ChatIcon name="hipchat" color={colors.tertiary} size={45} />
                       </View>
                       {
                         newMessageCount !== 0 &&

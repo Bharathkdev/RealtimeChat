@@ -2,24 +2,25 @@ import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
 import DateTimePickerModal from "@react-native-community/datetimepicker";
-
+import colors from '../../common/colors';
+ 
 const styles = StyleSheet.create({
   labelStyle: {
     marginBottom: moderateScale(10),
     fontSize: moderateScale(15),
     fontWeight: '500',
-    color: '#000000',
+    color: colors.defaultDark,
     fontFamily: 'Poppins-Medium'
   },
   textStyle: {
     fontSize: moderateScale(14),
-    color: '#000000',
+    color: colors.defaultDark,
     fontFamily: 'Poppins-Regular'
   },
   validationLabelStyle: {
     fontSize: moderateScale(15),
     fontWeight: '500',
-    color: '#FE295C',
+    color: colors.error,
     paddingVertical: moderateScale(6)
   },
   textWrapperStyle: {
@@ -27,8 +28,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: moderateScale(15),
-    borderColor: "#CEEAFF",
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.base,
+    backgroundColor: colors.defaultLight,
     borderWidth: 1,
     borderRadius: moderateScale(10),
   },

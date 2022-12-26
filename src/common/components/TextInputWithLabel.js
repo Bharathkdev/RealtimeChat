@@ -1,29 +1,30 @@
 import React, { forwardRef } from 'react';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
+import colors from '../colors';
 
 const styles = StyleSheet.create({
   labelStyle: {
     marginBottom: moderateScale(10),
     fontSize: moderateScale(15),
     fontWeight: '500',
-    color: '#000000',
+    color: colors.defaultDark,
     fontFamily: 'Poppins-Medium'
   },
   textInputStyle: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.defaultLight,
     borderRadius: moderateScale(10),
     height: moderateScale(50),
     paddingHorizontal: moderateScale(15),
     fontSize: moderateScale(14),
     borderWidth: moderateScale(1),
-    borderColor: '#CEEAFF',
+    borderColor: colors.base,
     fontFamily: 'Poppins-Regular',
   },
   validationLabelStyle: {
     fontSize: moderateScale(15),
     fontWeight: '500',
-    color: '#FE295C',
+    color: colors.error,
     paddingVertical: moderateScale(6)
   },
 });
