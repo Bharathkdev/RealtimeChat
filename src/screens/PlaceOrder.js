@@ -89,6 +89,7 @@ export default PlaceOrder = ({offline}) => {
     });
 
     ws.current.addEventListener('error', (error) => {
+      clearInterval(reconnectInterval);
       console.log('WebSocket connection error ', error );
     });
 
@@ -123,7 +124,7 @@ export default PlaceOrder = ({offline}) => {
     console.log('Trying to reconnect...');
     ws.current = new WebSocket('ws://medichat.eu-4.evennode.com');
     ws.current.addEventListener('close', () => {
-      console.log('WebSocket connection closed');
+      console.log('WebSocket connection closed inside reconnect');
       reconnectInterval = setInterval(reconnect, 5000);
     });
     ws.current.addEventListener('open', () => {
@@ -131,6 +132,7 @@ export default PlaceOrder = ({offline}) => {
       clearInterval(reconnectInterval);
     });
     ws.current.addEventListener('error', (error) => {
+      clearInterval(reconnectInterval);
       console.log('WebSocket connection error inside reconnect', error );
     });
     ws.current.addEventListener('message', updateMessageList);
