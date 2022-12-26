@@ -92,6 +92,7 @@ export default PlaceOrder = ({offline}) => {
       reconnectInterval = setInterval(reconnect, 5000);
     });
 
+    // Set an event listener for the 'error' event
     ws.current.addEventListener('error', (error) => {
       clearInterval(reconnectInterval);
       console.log('WebSocket connection error ', error );
