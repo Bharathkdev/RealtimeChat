@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     padding: moderateScale(10),
     textAlign: 'center',
     color: '#000000',
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold'
   },
   filterLine: {
     borderBottomWidth: moderateScale(1),
@@ -65,7 +65,8 @@ const styles = StyleSheet.create({
   },
   messageText: {
     color: 'black',
-    fontSize: moderateScale(15)
+    fontSize: moderateScale(14),
+    fontFamily: 'Poppins-Regular',
   },
   messageHeaderView: {
     flex: 1,
@@ -78,9 +79,15 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(15), 
     paddingBottom: moderateScale(2), 
     paddingRight: moderateScale(15),
+    fontFamily: 'Poppins-SemiBold',
+  },
+  messageTimeText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: moderateScale(14), 
   },
   orderDetailsHeaderText: {
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: moderateScale(14)
   },
   floatingIcon: {
     position: 'absolute',
@@ -94,7 +101,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontFamily: 'Poppins-SemiBold'
   },
   modalFooter: {
     flexDirection: 'row',
@@ -157,13 +164,13 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
      input.current.focus();
      
      if(filteredData?.length > 0 && newMessageCount !== 0) {
-      setTimeout(() => messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: true}), 500);
+      messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false});
      }
      if(newMessageCount === 0) {
-      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: true }), 500);
+      messageRef?.current?.scrollToEnd({ animated: false });
      }
     }
-  }, [chatModalVisible, input, messageRef]);
+  }, [chatModalVisible, input, messageRef, newMessageCount, filteredData]);
 
   useEffect(() => {
     
@@ -209,7 +216,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
   const handleNewMessage = () => {
     if(chatModalVisible) {
-      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: true }), 500);
+      messageRef?.current?.scrollToEnd({ animated: false });
     }
   };
 
@@ -226,7 +233,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
   const sendMessage = () => {
     if(!offline) {
-      webSocket.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, userName, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+      webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, userName, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
       setNewMessage('');
     } 
   };
@@ -294,8 +301,8 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
       return 'You';
     }
     if(messageSentBy) {
-      if(messageSentBy.length > 30) {
-        return messageSentBy.substring(0, 30) + '...';
+      if(messageSentBy.length > 15) {
+        return messageSentBy.substring(0, 15) + '...';
       } else {
         return messageSentBy;
       } 
@@ -312,6 +319,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
         animationOut="slideOutDown"
         animationInTiming={500} 
         animationOutTiming={500} 
+        onBackButtonPress={() => hideChatModal()}
         >
         <View style={styles.modal}>
           <View style = {styles.modalHeader}>
@@ -363,19 +371,19 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
                   <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? '#CEEAFF' : '#FFFFFF' }}>
                   <View style = {styles.messageHeaderView}>
                       <Text style = {styles.messageNameText}>{handleUserName(item.deviceId, item.userName)}</Text>
-                      <Text>{handleMessageTimestamp(item.time)}</Text>
+                      <Text style = {styles.messageTimeText}>{handleMessageTimestamp(item.time)}</Text>
                   </View>
                   {item.type === 'order' ? 
                       <>
                           <Text style = {styles.orderDetailsHeaderText}>{item.name} order details:</Text>
                           <Text style = {styles.messageText}>
-                          Customer Name: {item.name}
-                          {"\n"}
-                          Mobile: {item.contact}
-                          {"\n"}
-                          Order Items: {item.itemsPlaced}
-                          {"\n"}
-                          Expected Delivery date: {new Date(item.delivery).toLocaleDateString()}
+                            Customer Name: {item.name}
+                            {"\n"}
+                            Mobile: {item.contact}
+                            {"\n"}
+                            Order Items: {item.itemsPlaced}
+                            {"\n"}
+                            Expected Delivery date: {new Date(item.delivery).toLocaleDateString()}
                           </Text> 
                       </> : 
                       <Text style = {styles.messageText}>{item.message}</Text>

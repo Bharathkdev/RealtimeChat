@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { forwardRef } from 'react';
 import {StyleSheet, Text, TextInput, View} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
 
@@ -28,16 +28,20 @@ const styles = StyleSheet.create({
   },
 });
 
-export const TextInputWithLabel = (props) => {
+export const TextInputWithLabel = forwardRef((props, ref) => {
 
   return (
     <View style={props.viewStyle}>
       <Text style={[styles.labelStyle, props.labelStyle]}> {props.label} </Text>
 
       <TextInput
+        ref = {ref} 
         placeholder = {props.placeholder}
         style = {[styles.textInputStyle, props.textInputStyle]}
+        returnKeyType = {props.returnKeyType}
         keyboardType = {props.keyboardType}
+        onSubmitEditing = {props.onSubmitEditing}
+        blurOnSubmit = {props.blurOnSubmit}
         value = {props.value}
         maxLength = {props.maxLength}
         onChangeText = {props.onChangeText}
@@ -49,4 +53,4 @@ export const TextInputWithLabel = (props) => {
       )}
     </View>
   );
-};
+});

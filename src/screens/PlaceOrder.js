@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { KeyboardAvoidingView, View, StyleSheet, Animated, Text, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { AppState, KeyboardAvoidingView, View, StyleSheet, TouchableOpacity, ScrollView   } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import { moderateScale } from 'react-native-size-matters';
 import ChatIcon from 'react-native-vector-icons/Fontisto';
@@ -64,33 +64,60 @@ export default PlaceOrder = ({offline}) => {
   const [messagesList, setMessagesList] = useState([]);
   const [userName, setUserName] = useState('');
   const [newMessageCount, setNewMessageCount] = useState(0);
-  const [ws, setWS] = useState(null);
+  const [appState, setAppState] = useState(AppState.currentState);
+  const ws = useRef(null);
   const listRef = useRef(null);
+  const secondInputRef = useRef(null);
+  const thirdInputRef = useRef(null);
   const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
-
-  const updateMessageList = (event) => {
-    console.log("Message event: ", JSON.parse(event.data), messagesList); 
-    setMessagesList((messagesList) => {
-      return [...messagesList, JSON.parse(event.data)];
-    })
-  }
-
-  const handleWebSocketSetup = (isOffline) => {
-    const webSocketClient = new WebSocket("wss://b3f0-183-83-148-32.in.ngrok.io");
-    webSocketClient.onmessage = updateMessageList;
-    webSocketClient.onclose = () => {
-      console.log("Connection closed");
-      !isOffline ? handleWebSocketSetup : webSocketClient.close();
-    }
-    setWS(webSocketClient);
-    return webSocketClient;
-  }
-
+  let reconnectInterval;
+  
   useEffect(() => {
-      const client = handleWebSocketSetup(offline);
+    // Create a WebSocket object and store it in a variable
+    ws.current = new WebSocket('ws://medichat.eu-4.evennode.com');
+    //let reconnectInterval;
+    // Set an event listener for the 'close' event
+    ws.current.addEventListener('close', () => {
+      console.log('WebSocket connection closed');
+      // Attempt to reconnect to the WebSocket server
+      // Set an interval to try to reconnect every 5 seconds
+      reconnectInterval = setInterval(reconnect, 5000);
+    });
 
-      return () => client.close();
-  }, [offline]);
+    ws.current.addEventListener('error', (error) => {
+      console.log('WebSocket connection error ', error );
+      // Attempt to reconnect to the WebSocket server
+      // Set an interval to try to reconnect every 5 seconds
+    });
+
+     // Set an event listener for the 'message' event
+    ws.current.addEventListener('message', updateMessageList);
+
+    // Set an event listener for the 'open' event
+    ws.current.addEventListener('open', () => {
+      console.log('Connected to WebSocket server');
+      // Clear the reconnection interval when the connection is established
+      clearInterval(reconnectInterval);
+    });
+
+    // // Function to attempt to reconnect to the WebSocket server
+    // const reconnect = () => {
+    //   console.log('Trying to reconnect...');
+    //   ws.current = new WebSocket('ws://medichat.eu-4.evennode.com');
+    //   ws.current.addEventListener('open', () => {
+    //     console.log('Reconnected to WebSocket server');
+    //     // Clear the reconnection interval when the connection is established
+    //     clearInterval(reconnectInterval);
+    //   });
+    //   ws.current.addEventListener('message', updateMessageList);
+    // };
+
+    return () => {
+      // Clean up the WebSocket connection when the component unmounts
+      ws.current.close();
+      clearInterval(reconnectInterval);
+    };
+  }, []); 
 
   useEffect(() => {
     if(!chatModalVisibility && messagesList.length > 0) {
@@ -99,21 +126,55 @@ export default PlaceOrder = ({offline}) => {
       })
     }
     handleNewMessage();
-  }, [messagesList])
+  }, [messagesList]);
+
+  useEffect(() => {
+    AppState.addEventListener('change', handleAppStateChange);
+  
+    return () => {
+      AppState.removeEventListener('change', handleAppStateChange);
+    };
+  }, []);
+
+   // Function to attempt to reconnect to the WebSocket server
+   const reconnect = () => {
+    console.log('Trying to reconnect...');
+    ws.current = new WebSocket('ws://medichat.eu-4.evennode.com');
+    ws.current.addEventListener('open', () => {
+      console.log('Reconnected to WebSocket server');
+      // Clear the reconnection interval when the connection is established
+      clearInterval(reconnectInterval);
+    });
+    ws.current.addEventListener('message', updateMessageList);
+  };
+
+  const handleAppStateChange = (nextAppState) => {
+    console.log('App has come to the foreground!', appState, nextAppState);
+    if (nextAppState === 'background') {
+      ws.current.close();
+      reconnect();
+      console.log('App closed');
+    }
+    console.log('App has come to the foregrounds!', appState, nextAppState);
+    setAppState(nextAppState);
+  }
+
+  const updateMessageList = (event) => {
+    console.log("Message event: ", JSON.parse(event.data), messagesList); 
+    setMessagesList((messagesList) => {
+      return [...messagesList, JSON.parse(event.data)];
+    })
+  }
 
   const handleNewMessage = () => {
     if(chatModalVisibility) {
-      setTimeout(() => listRef?.current?.scrollToEnd({ animated: true }), 500);
+      listRef?.current?.scrollToEnd({ animated: false });
     }
-  };
-
-  const toggleModal = () => {
-    setChatModalVisibility(true);
   };
 
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
-      ws.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+      ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
     }
   }
 
@@ -154,19 +215,28 @@ export default PlaceOrder = ({offline}) => {
               <View style={styles.containerStyle}>
                 <View>
                   <Label title={'Place your Order'} labelStyle = {{fontWeight: '600', paddingBottom: moderateScale(30)}}/>
-              
                   <TextInputWithLabel
                     label = "Customer Name"
                     value = {values.customerName}
+                    returnKeyType = "next"
+                    onSubmitEditing={() => {
+                      secondInputRef.current.focus();
+                    }}
+                    blurOnSubmit={false}
                     onChangeText = {handleChange("customerName")}
                     onBlur = {handleBlur("customerName")}
                     error = {touched.customerName && errors.customerName}
                     viewStyle = {styles.textInputViewStyle}
                   />
                   <TextInputWithLabel
+                    ref={secondInputRef}
                     label = "Phone Number"
                     value = {values.phoneNumber}
                     keyboardType = "phone-pad"
+                    returnKeyType = "next"
+                    onSubmitEditing={() => {
+                      thirdInputRef.current.focus();
+                    }}
                     maxLength = {10}
                     onChangeText = {handleChange("phoneNumber")}
                     onBlur = {handleBlur("phoneNumber")}
@@ -174,8 +244,10 @@ export default PlaceOrder = ({offline}) => {
                     viewStyle = {styles.textInputViewStyle}
                   />
                   <TextInputWithLabel
+                    ref = {thirdInputRef}
                     label = "Items to be ordered"
                     value = {values.items}
+                    returnKeyType = "done"
                     onChangeText={handleChange("items")}
                     onBlur = {handleBlur("items")}
                     error = {touched.items && errors.items}
@@ -208,7 +280,7 @@ export default PlaceOrder = ({offline}) => {
                 <View>
                   <View style={styles.iconContainerStyle}>
                     <TouchableOpacity 
-                      onPress={toggleModal}
+                      onPress={() => setChatModalVisibility(true)}
                       activeOpacity = {1}
                     >
                       <View style={styles.iconStyle}>

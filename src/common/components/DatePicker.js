@@ -59,7 +59,7 @@ export const DatePicker = (props) => {
       {calendarVisibility ? 
       <DateTimePickerModal
         mode = {props.mode}
-        value = {new Date()}
+        value = {props.value ? props.value : new Date()}
         onChange = {handleDateConfirm}
         minimumDate = {new Date()}
         animationType = "fade"

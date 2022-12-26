@@ -55,7 +55,7 @@ export default NameModal = ({nameModalVisible, handleNameSubmit}) => {
             viewStyle = {styles.textInputViewStyle}
             labelStyle = {styles.labelStyle}
           />
-          <Text style = {styles.textStyle}>*If not given, messages will be sent as Anonymous to others</Text>
+          <Text style = {styles.textStyle}>*If not given, your messages and orders will be displayed as Anonymous to others</Text>
           <CustomButton 
                 title = "Submit" 
                 onPress={() => handleNameSubmit(name, true)} 
