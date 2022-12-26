@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AppState, KeyboardAvoidingView, View, StyleSheet, TouchableOpacity, ScrollView   } from 'react-native';
+import { AppState, KeyboardAvoidingView, View, StyleSheet, TouchableOpacity, ScrollView, Alert   } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import { moderateScale } from 'react-native-size-matters';
 import ChatIcon from 'react-native-vector-icons/Fontisto';
@@ -176,7 +176,7 @@ export default PlaceOrder = ({offline}) => {
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
       ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
-      alert('Order placed successfully!')
+      Alert.alert('Successful', 'Order placed successfully!')
     }
   }
 
