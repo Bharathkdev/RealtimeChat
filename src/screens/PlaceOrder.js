@@ -158,7 +158,7 @@ export default PlaceOrder = ({offline}) => {
             customerName: '',
             phoneNumber: '',
             items: '',
-            deliveryDate: ''
+            deliveryDate: new Date()
           }}
           onSubmit = {(values, {resetForm}) => {
             resetForm({values: ''});
@@ -171,7 +171,7 @@ export default PlaceOrder = ({offline}) => {
                 .min(10, 'Enter a valid phone number')
                 .matches(/^\d+$/, 'Enter a valid phone number'),
               items: Yup.string().required('Required'),
-              deliveryDate: Yup.string().required('Required'),
+              deliveryDate: Yup.string(),
             })
           }
           validateOnMount

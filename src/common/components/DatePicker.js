@@ -16,12 +16,6 @@ const styles = StyleSheet.create({
     color: colors.defaultDark,
     fontFamily: 'Poppins-Regular'
   },
-  validationLabelStyle: {
-    fontSize: moderateScale(15),
-    fontFamily: 'Poppins-Medium',
-    color: colors.error,
-    paddingVertical: moderateScale(6)
-  },
   textWrapperStyle: {
     minHeight: moderateScale(50),
     flex: 1,
@@ -60,16 +54,13 @@ export const DatePicker = ({mode, onChange, viewStyle, validationLabelStyle, lab
       {calendarVisibility ? 
       <DateTimePickerModal
         mode = {mode}
-        value = {value ? value : new Date()}
+        value = {value}
         onChange = {handleDateConfirm}
         minimumDate = {new Date()}
         animationType = "fade"
        /> 
        : 
       null}
-      {error && (
-        <Text style = {{ ...styles.validationLabelStyle, ...validationLabelStyle }}> {error} </Text>
-      )}
     </View>
   );
 };
