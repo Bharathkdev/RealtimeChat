@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import { View, TextInput, Easing, Text, FlatList, Animated, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Easing, FlatList, Animated, StyleSheet, TouchableOpacity } from 'react-native';
 import Modal from 'react-native-modal';
 import DeviceInfo from 'react-native-device-info';
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -142,41 +142,17 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   const [searchBarHeight] = useState(new Animated.Value(0));
   const [searchBarWidth] = useState(new Animated.Value(0));
   const deviceId = DeviceInfo.getUniqueId()._j;
+
+  // Message/Order filter options
   const filters = [
     {option: 'All', value: 'all'}, 
     {option: 'Orders', value: 'order'}, 
     {option: 'Messages', value: 'message'}, 
     {option: 'My Orders', value: 'myOrder'}, 
-    {option: 'My Messages', value: 'myMessage'}];
+    {option: 'My Messages', value: 'myMessage'}
+  ];
 
-  useEffect(() => {
-
-    if (filteredData?.length > 0 && hasDataLongerThanScreen && scrollPosition >= 0 && scrollPosition < 0.99) {
-      fadeIn();
-    } else {
-      fadeOut();
-    }
-  }, [scrollPosition, filteredData, hasDataLongerThanScreen]);
-
-  useEffect(() => {
-    if(chatModalVisible) {
-     input.current.focus();
-    }
-  }, [chatModalVisible]);
-
-  useEffect(() => {
-    if(chatModalVisible) {
-     
-     if(filteredData?.length > 0 && newMessageCount !== 0) {
-      console.log("Outside chat modal and receiving new messages");
-      setTimeout(() => messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false}), 1000);
-      return;
-    }
-      console.log("Inside chat modal and receiving new messages");
-      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: false }), 500);
-    }
-  }, [chatModalVisible, messageRef, newMessageCount, filteredData]);
-
+  // To search and filter messages/orders
   useEffect(() => {
     const lowerCaseSearchInput = searchInput.toLowerCase();
     const filteredMessages = messagesList?.filter((item) =>
@@ -190,9 +166,34 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
       if(filterOption === 'myOrder' && item.type === 'order' && item.deviceId === deviceId) return item
       if(filterOption === 'myMessage' && item.type === 'message' && item.deviceId === deviceId) return item
     });
-    console.log('Filtered messages now: ', filteredMessages);
     setFilteredData(filteredMessages);
   }, [searchInput, messagesList, filterOption]);
+
+  useEffect(() => {
+    if(chatModalVisible) {
+     input.current.focus();
+    }
+  }, [chatModalVisible]);
+
+  // To handle scroll to bottom button
+  useEffect(() => {
+    if (filteredData?.length > 0 && hasDataLongerThanScreen && scrollPosition >= 0 && scrollPosition < 0.99) {
+      fadeIn();
+    } else {
+      fadeOut();
+    }
+  }, [scrollPosition, filteredData, hasDataLongerThanScreen]);
+
+  useEffect(() => {
+    if(chatModalVisible) {
+     
+     if(filteredData?.length > 0 && newMessageCount !== 0) {
+      setTimeout(() => messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false}), 1000);
+      return;
+    }
+      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: false }), 500);
+    }
+  }, [chatModalVisible, messageRef, newMessageCount, filteredData]);
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -236,6 +237,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
     setNewMessage(e.nativeEvent.text);
   };
 
+  // To send messages to the web socket server
   const sendMessage = () => {
     if(!offline) {
       webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, userName, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
@@ -287,6 +289,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
     }
   };
 
+  // To display messages in user's local timezone
   const handleMessageTimestamp = (timestamp) => {
     const date = new Date(timestamp);
 
@@ -301,6 +304,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
     return formattedTimestamp;
   }
 
+  // To handle sender and receiver user name
   const handleUserName = (userDeviceId, messageSentBy) => {
     if(userDeviceId === deviceId) {
       return 'You';

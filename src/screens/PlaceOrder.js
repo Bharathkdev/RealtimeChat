@@ -108,6 +108,7 @@ export default PlaceOrder = ({offline}) => {
     };
   }, []); 
 
+  // To track new messages count
   useEffect(() => {
     if(!chatModalVisibility && messagesList.length > 0) {
       setNewMessageCount((newMessageCount) => {
@@ -134,12 +135,14 @@ export default PlaceOrder = ({offline}) => {
     ws.current.addEventListener('message', updateMessageList);
   };
 
+  // To update message list
   const updateMessageList = (event) => {
     setMessagesList((messagesList) => {
       return [...messagesList, JSON.parse(event.data)];
     })
   }
 
+  // To place the order
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
       ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
