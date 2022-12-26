@@ -176,6 +176,7 @@ export default PlaceOrder = ({offline}) => {
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
       ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+      alert('Order placed successfully!')
     }
   }
 
@@ -191,7 +192,9 @@ export default PlaceOrder = ({offline}) => {
             items: '',
             deliveryDate: ''
           }}
-          onSubmit = {() => {}}       // shall we remove this abinaya
+          onSubmit = {(values, {resetForm}) => {
+            resetForm({values: ''});
+          }}      
           validationSchema = {
             Yup.object().shape({
               customerName: Yup.string().required('Required'),
@@ -206,7 +209,7 @@ export default PlaceOrder = ({offline}) => {
           validateOnMount
           validateOnBlur
           validateOnChange
-          component = {({ handleChange, handleBlur, touched, values, errors, isValid, setFieldValue }) => {
+          component = {({ handleChange, handleBlur, submitForm, touched, values, errors, isValid, setFieldValue }) => {
             return (
               <KeyboardAvoidingView
                 keyboardVerticalOffset = {Platform.select({ ios: 0, android: 0 })}
@@ -269,13 +272,15 @@ export default PlaceOrder = ({offline}) => {
                   <CustomButton 
                     title = "Place order" 
                     disableButton = {!isValid}
-                    onPress={placeOrder.bind(
-                      this,
+                    onPress={() => {
+                      placeOrder(
                       values.customerName, 
                       values.phoneNumber, 
                       values.items, 
                       values.deliveryDate
-                    )}
+                      )
+                      submitForm();  
+                    }}
                   />
                 </View>
                 <View>

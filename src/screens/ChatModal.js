@@ -163,6 +163,11 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   useEffect(() => {
     if(chatModalVisible) {
      input.current.focus();
+    }
+  }, [chatModalVisible]);
+
+  useEffect(() => {
+    if(chatModalVisible) {
      
      if(filteredData?.length > 0 && newMessageCount !== 0) {
       messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false});
@@ -171,10 +176,9 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
       messageRef?.current?.scrollToEnd({ animated: false });
      }
     }
-  }, [chatModalVisible, input, messageRef, newMessageCount, filteredData]);
+  }, [chatModalVisible, messageRef, newMessageCount, filteredData]);
 
   useEffect(() => {
-    
     const lowerCaseSearchInput = searchInput.toLowerCase();
     const filteredMessages = messagesList?.filter((item) =>
       item.message?.toLowerCase().includes(lowerCaseSearchInput) ||
@@ -183,7 +187,6 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
       item.itemsPlaced?.toLowerCase().includes(lowerCaseSearchInput) ||
       item.delivery?.toLowerCase().includes(lowerCaseSearchInput) 
     ).filter((item) => {
-      console.log("item.message: ", item, filterOption);
       if(filterOption === 'all' || filterOption === item.type) return item 
       if(filterOption === 'myOrder' && item.type === 'order' && item.deviceId === deviceId) return item
       if(filterOption === 'myMessage' && item.type === 'message' && item.deviceId === deviceId) return item
@@ -320,7 +323,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
         animationOut="slideOutDown"
         animationInTiming={500} 
         animationOutTiming={500} 
-        onBackButtonPress={() => hideChatModal()}
+        onBackButtonPress={closeModal}
         >
         <View style={styles.modal}>
           <View style = {styles.modalHeader}>
@@ -418,8 +421,8 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               {offline ? <Feather style = {styles.wifiOffIcon} name="wifi-off" color="red" size={25}/> : null}
               <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder="Type your message here..." value={newMessage} onChange={handleMessage} />
             </View>
-            <TouchableOpacity disabled={newMessage ? false : true} style = {{opacity: newMessage ? 1 : 0.3}} onPress={sendMessage}>
-              <Icon name="send" color={colors.primary} size={25}/>
+            <TouchableOpacity disabled={(newMessage && !offline ) ? false : true} style = {{opacity: (newMessage && !offline )   ? 1 : 0.3}} onPress={sendMessage}>
+              <Icon name="send" color = {colors.primary} size = {25}/>
             </TouchableOpacity>
           </View>
         </View>

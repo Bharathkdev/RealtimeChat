@@ -19,17 +19,17 @@ const styles = StyleSheet.create({
     color: colors.defaultLight,
   }
 });
-export const CustomButton = (props) => {
+export const CustomButton = ({disableButton, buttonStyle, onPress, textStyle, title}) => {
 
-  const disableButtonStyle = props.disableButton === true ? { opacity: 0.35 } : {};
+  const disableButtonStyle = disableButton === true ? { opacity: 0.35 } : {};
 
   return (
     <TouchableOpacity
-      style = {{ ...styles.buttonStyle, ...props.buttonStyle, ...disableButtonStyle }}
-      onPress = {props.onPress}
-      disabled = {props.disableButton}
+      style = {{ ...styles.buttonStyle, ...buttonStyle, ...disableButtonStyle }}
+      onPress = {onPress}
+      disabled = {disableButton}
     >
-      <Text style={[styles.textStyle, props.textStyle]}>{props.title}</Text>
+      <Text style={[styles.textStyle, textStyle]}>{title}</Text>
     </TouchableOpacity>
   );
 };

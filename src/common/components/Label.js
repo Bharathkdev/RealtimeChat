@@ -12,9 +12,9 @@ const styles = StyleSheet.create({
     }
 });
 
-export const Label = (props) => {
+export const Label = ({title, labelStyle}) => {
 
     return (
-        <Text style={[styles.labelStyle, props.labelStyle]}> {props.title} </Text>
+        <Text style={[styles.labelStyle, labelStyle]}> {title} </Text>
     );
 };
