@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
 import colors from '../colors';
 
@@ -29,7 +29,7 @@ export const CustomButton = ({disableButton, buttonStyle, onPress, textStyle, ti
       onPress = {onPress}
       disabled = {disableButton}
     >
-      <Text style={[styles.textStyle, textStyle]}>{title}</Text>
+      <Text style = {[styles.textStyle, textStyle]}>{title}</Text>
     </TouchableOpacity>
   );
 };

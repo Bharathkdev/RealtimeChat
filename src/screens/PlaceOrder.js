@@ -3,10 +3,7 @@ import { AppState, KeyboardAvoidingView, View, StyleSheet, TouchableOpacity, Scr
 import DeviceInfo from 'react-native-device-info';
 import { moderateScale } from 'react-native-size-matters';
 import ChatIcon from 'react-native-vector-icons/Fontisto';
-import {TextInputWithLabel} from '../common/components/TextInputWithLabel';
-import { Label } from '../common/components/Label';
-import { CustomButton } from '../common/components/CustomButton';
-import { DatePicker } from '../common/components/DatePicker';
+import {CustomButton, DatePicker, Label, TextInputWithLabel} from '../common/components';
 import ChatModal from './ChatModal';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -19,6 +16,13 @@ const styles = StyleSheet.create({
     padding: moderateScale(10), 
     marginVertical: moderateScale(20),
     justifyContent:'space-between'
+  },
+  titleStyle: {
+    fontWeight: '600', 
+    paddingBottom: moderateScale(30), 
+    fontSize: moderateScale(22),
+    alignSelf: 'center',
+    color: colors.defaultDark
   },
   innerContainerStyle: {
     flexGrow: 1,
@@ -218,7 +222,7 @@ export default PlaceOrder = ({offline}) => {
               >
               <View style={styles.containerStyle}>
                 <View>
-                  <Label title={'Place your Order'} labelStyle = {{fontWeight: '600', paddingBottom: moderateScale(30)}}/>
+                  <Label title={'Place your Order'} labelStyle = {styles.titleStyle}/>
                   <TextInputWithLabel
                     label = "Customer Name"
                     value = {values.customerName}
@@ -295,7 +299,7 @@ export default PlaceOrder = ({offline}) => {
                       {
                         newMessageCount !== 0 &&
                         <View style = {styles.badgeViewStyle}>
-                          <Label title = {newMessageBadgeCount} labelStyle = {{fontSize: moderateScale(14)}}/>
+                          <Label title = {newMessageBadgeCount} labelStyle = {{color: colors.defaultDark}}/>
                         </View>
                       }
                     </TouchableOpacity>

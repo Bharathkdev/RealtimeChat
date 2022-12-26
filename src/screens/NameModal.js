@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import Modal from 'react-native-modal';
-import { TextInputWithLabel } from '../common/components/TextInputWithLabel';
-import { CustomButton } from '../common/components/CustomButton';
+import { CustomButton, TextInputWithLabel } from '../common/components';
 import { moderateScale } from 'react-native-size-matters';
  
 const styles = StyleSheet.create({
@@ -35,8 +34,6 @@ const styles = StyleSheet.create({
 export default NameModal = ({nameModalVisible, handleNameSubmit}) => {
     const [name, setName] = useState('');
     
-    console.log("Name modal visible: ", nameModalVisible);
-
     return (
         <Modal 
             isVisible={nameModalVisible}

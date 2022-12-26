@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import { View, TextInput, Easing, Text, FlatList, Animated, StyleSheet, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
+import { View, TextInput, Easing, Text, FlatList, Animated, StyleSheet, TouchableOpacity } from 'react-native';
 import Modal from 'react-native-modal';
 import DeviceInfo from 'react-native-device-info';
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -7,34 +7,36 @@ import { moderateScale } from 'react-native-size-matters';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from "../common/colors";
+import { Label } from '../common/components';
 
 const styles = StyleSheet.create({
   modal: {
     flex: 1,
     backgroundColor: colors.secondary,
     borderRadius: moderateScale(10),
-    overflow: 'hidden',
     padding: moderateScale(15),
-    marginVertical: moderateScale(20)
+    marginVertical: moderateScale(20),
+    overflow: 'hidden'
   },
   modalHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between'
   },
   filterModal: {
     position: "absolute",
     top: moderateScale(60),
     left: moderateScale(20),
     borderRadius: moderateScale(5),
-    overflow: 'hidden',
-    backgroundColor: colors.base
+    backgroundColor: colors.base,
+    overflow: 'hidden'
   },
   filterOptions: {
-    padding: moderateScale(10),
     textAlign: 'center',
+    padding: moderateScale(10),
     color: colors.defaultDark,
-    fontFamily: 'Poppins-SemiBold'
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: moderateScale(10)
   },
   filterLine: {
     borderBottomWidth: moderateScale(1),
@@ -42,11 +44,11 @@ const styles = StyleSheet.create({
     borderBottomStyle: 'solid'
   },
   searchBar: {
-    marginLeft: moderateScale(10),
+    backgroundColor: 'white',
     borderColor: "black",
     borderWidth: moderateScale(1),
     borderRadius: moderateScale(10),
-    backgroundColor: 'white',
+    marginLeft: moderateScale(10)
   },
   searchBarInput: {
     padding: moderateScale(10)
@@ -62,31 +64,27 @@ const styles = StyleSheet.create({
     padding: moderateScale(8), 
     borderRadius: moderateScale(10),
     marginBottom: moderateScale(15),
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end'
   },
   messageText: {
-    color: 'black',
+    color: colors.defaultDark,
     fontSize: moderateScale(14),
     fontFamily: 'Poppins-Regular',
   },
   messageHeaderView: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
   messageNameText: {
     color: colors.primary, 
     fontSize: moderateScale(15), 
     paddingBottom: moderateScale(2), 
     paddingRight: moderateScale(15),
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'Poppins-SemiBold'
   },
   messageTimeText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: moderateScale(14), 
-  },
-  orderDetailsHeaderText: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: moderateScale(14)
   },
@@ -97,8 +95,8 @@ const styles = StyleSheet.create({
   },
   emptyListView: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   emptyText: {
     textAlign: 'center',
@@ -106,7 +104,7 @@ const styles = StyleSheet.create({
   },
   modalFooter: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   messageInput: {
     flex: 1,
@@ -152,7 +150,6 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
   useEffect(() => {
 
-    console.log("scroll position: ", scrollPosition);
     if (filteredData?.length > 0 && hasDataLongerThanScreen && scrollPosition >= 0 && scrollPosition < 0.99) {
       fadeIn();
     } else {
@@ -338,7 +335,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
                 onBackdropPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
                 {filters.map(filter => (
                   <TouchableOpacity activeOpacity={0.7} key={filter.option} style={{backgroundColor: filterOption === filter.value ? colors.filterSelection : colors.base}} onPress={() => handleFilterOptions(filter.value)}>
-                    <Text style = {styles.filterOptions}>{filter.option}</Text>
+                    <Label title={filter.option} labelStyle = {styles.filterOptions}/>
                     {filter.option !== 'My Messages' ? <View style={styles.filterLine}></View> : null}
                   </TouchableOpacity>
                 )
@@ -381,24 +378,16 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? moderateScale(20) : 0, paddingRight: item.deviceId === deviceId ? 0 : moderateScale(20)}}>
                 <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? colors.base : colors.defaultLight }}>
                   <View style = {styles.messageHeaderView}>
-                    <Text style = {styles.messageNameText}>{handleUserName(item.deviceId, item.userName)}</Text>
-                    <Text style = {styles.messageTimeText}>{handleMessageTimestamp(item.time)}</Text>
+                    <Label title={handleUserName(item.deviceId, item.userName)} labelStyle = {styles.messageNameText}/>
+                    <Label title={handleMessageTimestamp(item.time)} labelStyle = {styles.messageTimeText}/>
                   </View>
                   {item.type === 'order' ? 
-                    <>
-                      <Text style = {styles.orderDetailsHeaderText}>{item.name} order details:</Text>
-                      <Text style = {styles.messageText}>
-                        Customer Name: {item.name}
-                        {"\n"}
-                        Mobile: {item.contact}
-                        {"\n"}
-                        Order Items: {item.itemsPlaced}
-                        {"\n"}
-                        Expected Delivery date: {new Date(item.delivery).toLocaleDateString()}
-                      </Text> 
-                    </> 
+                    <View>
+                      <Label title={`${item.name} order details`} labelStyle = {[styles.messageTimeText, {color: colors.defaultDark}]}/>
+                      <Label title={`Customer Name: ${item.name} \n Mobile: ${item.contact} \n Order Items: ${item.itemsPlaced} \n Expected Delivery date: ${new Date(item.delivery).toLocaleDateString()}`} labelStyle = {styles.messageText}/> 
+                    </View> 
                     : 
-                    <Text style = {styles.messageText}>{item.message}</Text>
+                    <Label title={item.message} labelStyle = {styles.messageText}/>
                   }
                 </View> 
               </View>
@@ -406,7 +395,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
             /> 
             : 
             <View style={styles.emptyListView}>
-              <Text style={styles.emptyText}>No messages/orders yet.{"\n"}Please send a message or place an order or try with another filter.</Text>
+              <Label title={"No messages/orders yet.\n Please send a message or place an order or try with another filter."} labelStyle = {styles.emptyText}/>
             </View> 
             }
             <Animated.View style={{...styles.floatingIcon, opacity: fadeAnim}}>

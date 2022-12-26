@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: moderateScale(15),
     borderColor: colors.base,
     backgroundColor: colors.defaultLight,
-    borderWidth: 1,
+    borderWidth: moderateScale(1),
     borderRadius: moderateScale(10),
   },
 });
@@ -45,8 +45,8 @@ export const DatePicker = ({mode, onChange, viewStyle, validationLabelStyle, lab
   };  
 
   return (
-    <View style={[styles.viewStyle, viewStyle]}>
-      <Text style={[styles.labelStyle, labelStyle]}> {label} </Text>
+    <View style = {[styles.viewStyle, viewStyle]}>
+      <Text style = {[styles.labelStyle, labelStyle]}> {label} </Text>
 
       <TouchableOpacity onPress = {() => {
         setCalendarVisibility(true);
@@ -57,6 +57,7 @@ export const DatePicker = ({mode, onChange, viewStyle, validationLabelStyle, lab
           {value ? value.toLocaleDateString() : ''}
         </Text>
       </TouchableOpacity>
+
       {calendarVisibility ? 
       <DateTimePickerModal
         mode = {mode}

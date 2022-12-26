@@ -32,8 +32,8 @@ const styles = StyleSheet.create({
 export const TextInputWithLabel = forwardRef(({viewStyle, error, value, onBlur, validationLabelStyle, onChangeText, maxLength, blurOnSubmit, onSubmitEditing, keyboardType, returnKeyType, labelStyle, textInputStyle, label, placeholder}, ref) => {
 
   return (
-    <View style={viewStyle}>
-      <Text style={[styles.labelStyle, labelStyle]}> {label} </Text>
+    <View style = {viewStyle}>
+      <Text style = {[styles.labelStyle, labelStyle]}> {label} </Text>
 
       <TextInput
         ref = {ref} 
