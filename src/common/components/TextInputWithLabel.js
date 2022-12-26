@@ -28,28 +28,28 @@ const styles = StyleSheet.create({
   },
 });
 
-export const TextInputWithLabel = forwardRef((props, ref) => {
+export const TextInputWithLabel = forwardRef(({viewStyle, error, value, onBlur, validationLabelStyle, onChangeText, maxLength, blurOnSubmit, onSubmitEditing, keyboardType, returnKeyType, labelStyle, textInputStyle, label, placeholder}, ref) => {
 
   return (
-    <View style={props.viewStyle}>
-      <Text style={[styles.labelStyle, props.labelStyle]}> {props.label} </Text>
+    <View style={viewStyle}>
+      <Text style={[styles.labelStyle, labelStyle]}> {label} </Text>
 
       <TextInput
         ref = {ref} 
-        placeholder = {props.placeholder}
-        style = {[styles.textInputStyle, props.textInputStyle]}
-        returnKeyType = {props.returnKeyType}
-        keyboardType = {props.keyboardType}
-        onSubmitEditing = {props.onSubmitEditing}
-        blurOnSubmit = {props.blurOnSubmit}
-        value = {props.value}
-        maxLength = {props.maxLength}
-        onChangeText = {props.onChangeText}
-        onBlur = {props.onBlur}  
+        placeholder = {placeholder}
+        style = {[styles.textInputStyle, textInputStyle]}
+        returnKeyType = {returnKeyType}
+        keyboardType = {keyboardType}
+        onSubmitEditing = {onSubmitEditing}
+        blurOnSubmit = {blurOnSubmit}
+        value = {value}
+        maxLength = {maxLength}
+        onChangeText = {onChangeText}
+        onBlur = {onBlur}  
       />
 
-      {props.error && (
-        <Text style = {{ ...styles.validationLabelStyle, ...props.validationLabelStyle }}> {props.error} </Text>
+      {error && (
+        <Text style = {{ ...styles.validationLabelStyle, ...validationLabelStyle }}> {error} </Text>
       )}
     </View>
   );

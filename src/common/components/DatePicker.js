@@ -34,18 +34,18 @@ const styles = StyleSheet.create({
   },
 });
 
-export const DatePicker = (props) => {
+export const DatePicker = ({mode, onChange, viewStyle, validationLabelStyle, labelStyle, label, value, error}) => {
   const [calendarVisibility, setCalendarVisibility] = useState(false);
 
   const handleDateConfirm = (event, newDate) => {
         const selectedDate = newDate || new Date();
         setCalendarVisibility(false);
-        props.onChange(selectedDate)
+        onChange(selectedDate)
   };  
 
   return (
-    <View style={[styles.viewStyle, props.viewStyle]}>
-      <Text style={[styles.labelStyle, props.labelStyle]}> {props.label} </Text>
+    <View style={[styles.viewStyle, viewStyle]}>
+      <Text style={[styles.labelStyle, labelStyle]}> {label} </Text>
 
       <TouchableOpacity onPress = {() => {
         setCalendarVisibility(true);
@@ -53,21 +53,21 @@ export const DatePicker = (props) => {
       activeOpacity = {1}
       style = {{ ...styles.textWrapperStyle}}>
         <Text style = {styles.textStyle}>
-          {props.value ? props.value.toLocaleDateString() : ''}
+          {value ? value.toLocaleDateString() : ''}
         </Text>
       </TouchableOpacity>
       {calendarVisibility ? 
       <DateTimePickerModal
-        mode = {props.mode}
-        value = {props.value ? props.value : new Date()}
+        mode = {mode}
+        value = {value ? value : new Date()}
         onChange = {handleDateConfirm}
         minimumDate = {new Date()}
         animationType = "fade"
        /> 
        : 
       null}
-      {props.error && (
-        <Text style = {{ ...styles.validationLabelStyle, ...props.validationLabelStyle }}> {props.error} </Text>
+      {error && (
+        <Text style = {{ ...styles.validationLabelStyle, ...validationLabelStyle }}> {error} </Text>
       )}
     </View>
   );

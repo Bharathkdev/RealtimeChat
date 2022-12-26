@@ -178,7 +178,6 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   }, [chatModalVisible, messageRef, newMessageCount, filteredData]);
 
   useEffect(() => {
-    
     const lowerCaseSearchInput = searchInput.toLowerCase();
     const filteredMessages = messagesList?.filter((item) =>
       item.message?.toLowerCase().includes(lowerCaseSearchInput) ||
@@ -187,7 +186,6 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
       item.itemsPlaced?.toLowerCase().includes(lowerCaseSearchInput) ||
       item.delivery?.toLowerCase().includes(lowerCaseSearchInput) 
     ).filter((item) => {
-      console.log("item.message: ", item, filterOption);
       if(filterOption === 'all' || filterOption === item.type) return item 
       if(filterOption === 'myOrder' && item.type === 'order' && item.deviceId === deviceId) return item
       if(filterOption === 'myMessage' && item.type === 'message' && item.deviceId === deviceId) return item
@@ -324,7 +322,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
         animationOut="slideOutDown"
         animationInTiming={500} 
         animationOutTiming={500} 
-        onBackButtonPress={() => hideChatModal()}
+        onBackButtonPress={closeModal}
         >
         <View style={styles.modal}>
           <View style = {styles.modalHeader}>
