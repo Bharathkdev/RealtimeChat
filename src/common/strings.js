@@ -32,6 +32,8 @@ export default strings = {
         'info': '*If not given, your messages and orders will be displayed as Anonymous to others',
         'submit': 'Submit'
     },
-
-   
+    ErrorBoundary: {
+        'somethingWrong': 'Something went wrong!',
+        'relaunch': 'Relaunch'
+    }
 }

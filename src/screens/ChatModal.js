@@ -240,8 +240,12 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   // To send messages to the web socket server
   const sendMessage = () => {
     if(!offline) {
-      webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, userName, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
-      setNewMessage('');
+      try{  
+        webSocket.current.send(JSON.stringify({id: new Date().getTime(), type: 'message', message: newMessage, userName, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+        setNewMessage('');
+      }catch(error){
+        throw new Error(error);
+      }
     } 
   };
 

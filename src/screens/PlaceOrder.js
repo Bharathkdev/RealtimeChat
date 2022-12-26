@@ -146,11 +146,15 @@ export default PlaceOrder = ({offline}) => {
   // To place the order
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
-      ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
-      Alert.alert(strings.PlaceOrder.successful, strings.PlaceOrder.orderSuccess)
+      try{
+        ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+        Alert.alert(strings.PlaceOrder.successful, strings.PlaceOrder.orderSuccess)
+      } catch(error){
+        throw new Error(error);
+      }
     }
   }
-
+  
   return(
       <ScrollView
         contentContainerStyle = {styles.innerContainerStyle}
