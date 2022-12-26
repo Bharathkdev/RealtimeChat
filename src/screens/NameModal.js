@@ -39,29 +39,28 @@ export default NameModal = ({nameModalVisible, handleNameSubmit}) => {
 
     return (
         <Modal 
-        isVisible={nameModalVisible}
-        backdropTransitionOutTiming={0}
-        animationIn="slideInUp" 
-        animationOut="slideOutDown"
-        animationInTiming={500} 
-        animationOutTiming={500}
-        
+            isVisible={nameModalVisible}
+            backdropTransitionOutTiming={0}
+            animationIn="slideInUp" 
+            animationOut="slideOutDown"
+            animationInTiming={500} 
+            animationOutTiming={500}
         >
-        <View style={styles.nameModal}>
-          <TextInputWithLabel
-            label = "Name"
-            value = {name}
-            onChangeText = {setName}
-            viewStyle = {styles.textInputViewStyle}
-            labelStyle = {styles.labelStyle}
-          />
-          <Text style = {styles.textStyle}>*If not given, your messages and orders will be displayed as Anonymous to others</Text>
-          <CustomButton 
-                title = "Submit" 
-                onPress={() => handleNameSubmit(name, true)} 
-                buttonStyle={styles.customButtonStyle}
-            />
-        </View>  
+            <View style = {styles.nameModal}>
+                <TextInputWithLabel
+                    label = "Name"
+                    value = {name}
+                    onChangeText = {setName}
+                    viewStyle = {styles.textInputViewStyle}
+                    labelStyle = {styles.labelStyle}
+                />
+                <Text style = {styles.textStyle}>*If not given, your messages and orders will be displayed as Anonymous to others</Text>
+                <CustomButton 
+                    title = "Submit" 
+                    onPress={() => handleNameSubmit(name, true)} 
+                    buttonStyle={styles.customButtonStyle}
+                />
+            </View>  
         </Modal>
     )
 } 

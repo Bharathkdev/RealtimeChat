@@ -4,11 +4,12 @@ import PlaceOrder from './src/screens/PlaceOrder';
 import NetInfo from "@react-native-community/netinfo";
 import LottieSplashScreen from "react-native-lottie-splash-screen";
 import { moderateScale } from 'react-native-size-matters';
+import colors from './src/common/colors';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3FAFF'
+    backgroundColor: colors.background
   },
   banner: {
     position: 'absolute',
@@ -95,7 +96,7 @@ export default App = () => {
   return (
     <>
     <SafeAreaView style = {styles.container}>
-      <Animated.View style={[styles.banner, bannerStyle, { backgroundColor: isOffline ? '#FF0000' : '#00A300'}]}>
+      <Animated.View style={[styles.banner, bannerStyle, { backgroundColor: isOffline ? colors.networkBanner.offline : colors.networkBanner.online}]}>
         <Text style={styles.bannerText}>{isOffline ? "You are offline!" : "You're back online!"}</Text>
       </Animated.View>
       <PlaceOrder offline = {isOffline}/>
