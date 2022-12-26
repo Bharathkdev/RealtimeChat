@@ -169,10 +169,10 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
     if(chatModalVisible) {
      
      if(filteredData?.length > 0 && newMessageCount !== 0) {
-      messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false});
+      setTimeout(() => messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false}), 200);
      }
      if(newMessageCount === 0) {
-      messageRef?.current?.scrollToEnd({ animated: false });
+      setTimeout(() =>messageRef?.current?.scrollToEnd({ animated: false }), 200);
      }
     }
   }, [chatModalVisible, messageRef, newMessageCount, filteredData]);
@@ -219,7 +219,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
   const handleNewMessage = () => {
     if(chatModalVisible) {
-      messageRef?.current?.scrollToEnd({ animated: false });
+      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: false }), 200);
     }
   };
 
