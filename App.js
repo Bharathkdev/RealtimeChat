@@ -6,6 +6,7 @@ import LottieSplashScreen from "react-native-lottie-splash-screen";
 import { moderateScale } from 'react-native-size-matters';
 import colors from './src/common/colors';
 import strings from './src/common/strings';
+import ErrorBoundaryComponent from './src/common/ErrorBoundary/ErrorBoundaryComponent';
 
 const styles = StyleSheet.create({
   container: {
@@ -94,15 +95,14 @@ export default App = () => {
   ]
   }; 
 
-  
   return (
-    <>
-    <SafeAreaView style = {styles.container}>
-      <Animated.View style={[styles.banner, bannerStyle, { backgroundColor: isOffline ? colors.networkBanner.offline : colors.networkBanner.online}]}>
-        <Text style={styles.bannerText}>{isOffline ? strings.App.offline : strings.App.online}</Text>
-      </Animated.View>
-      <PlaceOrder offline = {isOffline}/>
-    </SafeAreaView>
-    </>
+    <ErrorBoundaryComponent>
+      <SafeAreaView style = {styles.container}>
+        <Animated.View style={[styles.banner, bannerStyle, { backgroundColor: isOffline ? colors.networkBanner.offline : colors.networkBanner.online}]}>
+          <Text style={styles.bannerText}>{isOffline ? strings.App.offline : strings.App.online}</Text>
+        </Animated.View>
+        <PlaceOrder offline = {isOffline}/>
+      </SafeAreaView>
+    </ErrorBoundaryComponent>
   );
 };
