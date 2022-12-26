@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { KeyboardAvoidingView, View, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { KeyboardAvoidingView, View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import { moderateScale } from 'react-native-size-matters';
 import ChatIcon from 'react-native-vector-icons/Fontisto';
@@ -35,6 +35,10 @@ const styles = StyleSheet.create({
     marginVertical: moderateScale(30),
     padding: moderateScale(10),
     alignItems: 'flex-end',
+  },
+  itemsInfoStyle: {
+    marginBottom: moderateScale(16),
+    fontFamily: 'Poppins-Regular'
   },
   badgeViewStyle:{
     position: "absolute",
@@ -234,7 +238,7 @@ export default PlaceOrder = ({offline}) => {
                     error = {touched.items && errors.items}
                     viewStyle = {styles.textInputViewStyle}
                   />
-                  
+                  <Text style = {styles.itemsInfoStyle}>{strings.PlaceOrder.itemsInfo}</Text> 
                   <DatePicker
                     label = {strings.PlaceOrder.deliveryDate}
                     viewStyle = {styles.textInputViewStyle}

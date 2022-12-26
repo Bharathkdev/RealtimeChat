@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(15),
     fontFamily: 'Poppins-Medium',
     color: colors.error,
-    paddingVertical: moderateScale(6)
+    paddingTop: moderateScale(3)
   },
 });
 

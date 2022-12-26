@@ -136,6 +136,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   const [newMessage, setNewMessage] = useState('');
   const [filteredData, setFilteredData] = useState([]);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [modalOpenComplete, setModalOpenComplete] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [hasDataLongerThanScreen, setHasDataLongerThanScreen] = useState(false);
   const input = useRef(null);
@@ -186,15 +187,23 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   }, [scrollPosition, filteredData, hasDataLongerThanScreen]);
 
   useEffect(() => {
-    if(chatModalVisible) {
-     
+    if(chatModalVisible && modalOpenComplete) {
       if(filteredData?.length > 0 && newMessageCount !== 0) {
         messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false});
+        resetNewMessageCount();
         return;
       }
       messageRef?.current?.scrollToIndex({index: filteredData?.length - 1, animated: false});
     }
-  }, [chatModalVisible, filteredData, newMessageCount]);
+  }, [chatModalVisible, filteredData, modalOpenComplete]);
+
+  function onModalOpen() {
+    setModalOpenComplete(true);
+  }
+  
+  function onModalClose() {
+    setModalOpenComplete(false);
+  }
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -228,7 +237,6 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
   const closeModal = () => {
     hideChatModal();
-    resetNewMessageCount();
     setSearchBarVisible(false);
     setSearchInput("");
   }
@@ -326,6 +334,8 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
     return (
       <Modal 
+        onModalShow={onModalOpen}
+        onModalHide={onModalClose}
         isVisible={chatModalVisible} 
         backdropTransitionOutTiming={0}
         animationIn="slideInUp" 

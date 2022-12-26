@@ -12,6 +12,7 @@ export default strings = {
         'customerName': 'Customer Name',
         'phoneNumber': 'Phone Number',
         'items': 'Items to be Ordered',
+        'itemsInfo': '*Use (,) seperated values to order multiple items',
         'deliveryDate': 'Expected Delivery Date',
         'placeOrder': 'Place Order'
     },
