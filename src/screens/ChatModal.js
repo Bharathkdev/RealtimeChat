@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import { View, TextInput, Easing, FlatList, Animated, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Easing, FlatList, Text, Animated, StyleSheet, TouchableOpacity } from 'react-native';
 import Modal from 'react-native-modal';
 import DeviceInfo from 'react-native-device-info';
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -403,12 +403,19 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
                     <Label title={handleMessageTimestamp(item?.time)} labelStyle = {styles.messageTimeText}/>
                   </View>
                   {item.type === 'order' ? 
-                    <View>
-                      <Label title={`${item?.name} ${strings.ChatModal.orderDetails}`} labelStyle = {[styles.messageTimeText, {color: colors.defaultDark}]}/>
-                      <Label title={`${strings.ChatModal.customerName}: ${item?.name} \n ${strings.ChatModal.mobile}: ${item?.contact} \n ${strings.ChatModal.orderItems}: ${item?.itemsPlaced} \n ${strings.ChatModal.deliveryDate}: ${new Date(item?.delivery).toLocaleDateString()}`} labelStyle = {styles.messageText}/> 
-                    </View> 
-                    : 
-                    <Label title={item?.message} labelStyle = {styles.messageText}/>
+                    <View style={{paddingLeft: moderateScale(4)}}>
+                      <Text style = {[styles.messageNameText, {color: colors.defaultDark}]}>{item?.name} {strings.ChatModal.orderDetails}</Text>
+                      <Text style = {styles.messageText}>
+                        {strings.ChatModal.customerName}: {item?.name}
+                        {"\n"}
+                        {strings.ChatModal.mobile}: {item?.contact}
+                        {"\n"}
+                        {strings.ChatModal.orderItems}: {item?.itemsPlaced}
+                        {"\n"}
+                        {strings.ChatModal.deliveryDate}: {new Date(item?.delivery)?.toLocaleDateString()}
+                      </Text> 
+                    </View> : 
+                    <Text style = {[styles.messageText, {paddingLeft: moderateScale(4)}]}>{item?.message}</Text>
                   }
                 </View> 
               </View>
