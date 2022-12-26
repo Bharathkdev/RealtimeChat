@@ -1,4 +1,8 @@
 export default strings = {
+    App: {
+        'offline': 'You\'re offline!',
+        'online': 'You\'re back online!'
+    },
     PlaceOrder: {
         'successful': 'Successful',
         'orderSuccess': 'Order placed successfully!',

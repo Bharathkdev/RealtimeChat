@@ -4,6 +4,7 @@ import Modal from 'react-native-modal';
 import { CustomButton, TextInputWithLabel } from '../common/components';
 import { moderateScale } from 'react-native-size-matters';
 import strings from '../common/strings';
+import colors from '../common/colors';
  
 const styles = StyleSheet.create({
     textInputViewStyle: {
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
     textStyle: {
         fontFamily: 'Poppins-Regular',
         marginBottom: moderateScale(10),
-        color: 'black'
+        color: colors.defaultDark
     }
 });
 

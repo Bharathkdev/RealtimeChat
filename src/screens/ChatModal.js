@@ -334,7 +334,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
           <View style = {styles.modalHeader}>
             <View style = {{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
               <TouchableOpacity onPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
-                  <Icon name="filter" color="black" size={25}/>
+                  <Icon name="filter" color={colors.defaultDark} size={25}/>
               </TouchableOpacity>
 
               <Modal 
@@ -351,7 +351,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               </Modal>
 
               <TouchableOpacity style = {{marginLeft: 20}} onPress={searchBarHandler}>
-                  <MaterialIcon name= {isSearchBarVisible ? "search-off" : "search"} color="black" size={moderateScale(25)}/>
+                  <MaterialIcon name= {isSearchBarVisible ? "search-off" : "search"} color={colors.defaultDark} size={moderateScale(25)}/>
               </TouchableOpacity> 
 
               {isSearchBarVisible ? 
@@ -367,7 +367,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               : null}
             </View>
             <TouchableOpacity onPress={closeModal} style = {styles.closeButton}>
-              <Icon name="close" color="black" size={25}/>
+              <Icon name="close" color={colors.defaultDark} size={25}/>
             </TouchableOpacity>
           </View>  
 
@@ -409,7 +409,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
             }
             <Animated.View style={{...styles.floatingIcon, opacity: fadeAnim}}>
               <TouchableOpacity onPress = {handleNewMessage}>
-                <Icon name="chevron-down-circle-outline" size={moderateScale(40)} color="black"/>
+                <Icon name="chevron-down-circle-outline" size={moderateScale(40)} color={colors.defaultDark}/>
               </TouchableOpacity>
             </Animated.View>
           </View>
@@ -417,7 +417,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
           <View style = {styles.modalFooter}>
             <View style={styles.textInputWithIcon}>
               {offline ? 
-                <Feather style = {styles.wifiOffIcon} name="wifi-off" color="red" size={moderateScale(25)}/> 
+                <Feather style = {styles.wifiOffIcon} name="wifi-off" color={colors.networkBanner.offline} size={moderateScale(25)}/> 
                 : 
                 null
               }

@@ -5,6 +5,7 @@ import NetInfo from "@react-native-community/netinfo";
 import LottieSplashScreen from "react-native-lottie-splash-screen";
 import { moderateScale } from 'react-native-size-matters';
 import colors from './src/common/colors';
+import strings from './src/common/strings';
 
 const styles = StyleSheet.create({
   container: {
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
     zIndex: 2,    //to make the banner fixed at the top and the scroll view content go behind it when scrolled
   },
   bannerText: {
-    color: 'white', 
+    color: colors.defaultLight, 
     fontSize: moderateScale(16),
     fontFamily: 'Poppins-SemiBold',
   },
@@ -37,17 +38,18 @@ export default App = () => {
   useEffect(() => {
     const removeNetInfoSubscription = NetInfo.addEventListener((state) => {
       const offline = !(state.isConnected && state.isInternetReachable);
-      console.log("Offline: ", state, offline);
       setOfflineStatus(offline);
     });
   
     return () => removeNetInfoSubscription();
   }, []);
   
+  // To hide Lottie splash screen
   useEffect(() => {
     LottieSplashScreen.hide();
   }, []);
 
+  // To animate network banner
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
@@ -97,7 +99,7 @@ export default App = () => {
     <>
     <SafeAreaView style = {styles.container}>
       <Animated.View style={[styles.banner, bannerStyle, { backgroundColor: isOffline ? colors.networkBanner.offline : colors.networkBanner.online}]}>
-        <Text style={styles.bannerText}>{isOffline ? "You are offline!" : "You're back online!"}</Text>
+        <Text style={styles.bannerText}>{isOffline ? strings.App.offline : strings.App.online}</Text>
       </Animated.View>
       <PlaceOrder offline = {isOffline}/>
     </SafeAreaView>
