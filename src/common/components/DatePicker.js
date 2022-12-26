@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
-import DateTimePickerModal from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import colors from '../../common/colors';
  
 const styles = StyleSheet.create({
@@ -28,14 +28,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export const DatePicker = ({mode, onChange, viewStyle, validationLabelStyle, labelStyle, label, value, error}) => {
+export const DatePicker = ({mode, iOSPickerTitle, onChange, viewStyle, labelStyle, label, date, value}) => {
   const [calendarVisibility, setCalendarVisibility] = useState(false);
-
-  const handleDateConfirm = (event, newDate) => {
-        const selectedDate = newDate || new Date();
-        setCalendarVisibility(false);
-        onChange(selectedDate)
-  };  
 
   return (
     <View style = {[styles.viewStyle, viewStyle]}>
@@ -50,17 +44,21 @@ export const DatePicker = ({mode, onChange, viewStyle, validationLabelStyle, lab
           {value ? value.toLocaleDateString() : ''}
         </Text>
       </TouchableOpacity>
-
-      {calendarVisibility ? 
       <DateTimePickerModal
+        display = {"default"}
+        headerTextIOS = {iOSPickerTitle}
+        isVisible = {calendarVisibility}
         mode = {mode}
-        value = {value}
-        onChange = {handleDateConfirm}
+        date = {value ? value : date}
+        onConfirm = {(value) => {
+          setCalendarVisibility(false);
+          onChange(value)
+        }}
+        onCancel = {() => {
+          setCalendarVisibility(false);
+        }}
         minimumDate = {new Date()}
-        animationType = "fade"
-       /> 
-       : 
-      null}
+      />
     </View>
   );
 };

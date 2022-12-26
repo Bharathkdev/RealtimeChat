@@ -14,7 +14,8 @@ export default strings = {
         'items': 'Items to be Ordered',
         'itemsInfo': '*Use (,) seperated values to order multiple items',
         'deliveryDate': 'Expected Delivery Date',
-        'placeOrder': 'Place Order'
+        'placeOrder': 'Place Order',
+        'pickDate': 'Pick a date' 
     },
     ChatModal: {
         'you': 'You',

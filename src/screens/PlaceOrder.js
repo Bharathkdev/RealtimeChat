@@ -153,7 +153,7 @@ export default PlaceOrder = ({offline}) => {
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
       try{
-        ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
+        ws?.current?.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
         Alert.alert(strings.PlaceOrder.successful, strings.PlaceOrder.orderSuccess)
       } catch(error){
         throw new Error(error);
@@ -171,7 +171,7 @@ export default PlaceOrder = ({offline}) => {
             customerName: '',
             phoneNumber: '',
             items: '',
-            deliveryDate: new Date()
+            deliveryDate: ''
           }}
           onSubmit = {(values, {resetForm}) => {
             resetForm({values: ''});
@@ -184,7 +184,7 @@ export default PlaceOrder = ({offline}) => {
                 .min(10, strings.PlaceOrder.phoneNumberValidation)
                 .matches(/^\d+$/, strings.PlaceOrder.phoneNumberValidation),
               items: Yup.string().required(strings.PlaceOrder.required),
-              deliveryDate: Yup.string(),
+              deliveryDate: Yup.string().required(strings.PlaceOrder.required),
             })
           }
           validateOnMount
@@ -240,19 +240,21 @@ export default PlaceOrder = ({offline}) => {
                   />
                   <Text style = {styles.itemsInfoStyle}>{strings.PlaceOrder.itemsInfo}</Text> 
                   <DatePicker
-                    label = {strings.PlaceOrder.deliveryDate}
-                    viewStyle = {styles.textInputViewStyle}
-                    value = {values.deliveryDate}
-                    mode = {"date"}
-                    onChange = {(value) => {
-                      setFieldValue("deliveryDate", value);
-                    }}
-                  /> 
+                      label = {strings.PlaceOrder.deliveryDate}
+                      iOSPickerTitle = {strings.PlaceOrder.pickDate}
+                      mode = {"date"}
+                      date = {new Date()}
+                      minimumDate = {new Date()}
+                      value = {values.deliveryDate}
+                      onChange = {(value) => {
+                        setFieldValue("deliveryDate", value);
+                      }}
+                      viewStyle = {styles.textInputViewStyle}/>
                 </View>
                 <View style = {{marginVertical: moderateScale(10)}}>
                   <CustomButton 
                     title = {strings.PlaceOrder.placeOrder}
-                    disableButton = {!isValid}
+                    disableButton = {!isValid || offline}
                     onPress={() => {
                       placeOrder(
                       values.customerName, 
