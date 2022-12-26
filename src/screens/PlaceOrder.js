@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { AppState, KeyboardAvoidingView, View, StyleSheet, TouchableOpacity, ScrollView, Alert   } from 'react-native';
+import { KeyboardAvoidingView, View, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import { moderateScale } from 'react-native-size-matters';
 import ChatIcon from 'react-native-vector-icons/Fontisto';
@@ -69,9 +69,7 @@ export default PlaceOrder = ({offline}) => {
   const [messagesList, setMessagesList] = useState([]);
   const [userName, setUserName] = useState('');
   const [newMessageCount, setNewMessageCount] = useState(0);
-  const [appState, setAppState] = useState(AppState.currentState);
   const ws = useRef(null);
-  const listRef = useRef(null);
   const secondInputRef = useRef(null);
   const thirdInputRef = useRef(null);
   const newMessageBadgeCount = `${newMessageCount > 10 ? '10+' : newMessageCount}`;
@@ -80,7 +78,7 @@ export default PlaceOrder = ({offline}) => {
   useEffect(() => {
     // Create a WebSocket object and store it in a variable
     ws.current = new WebSocket('ws://medichat.eu-4.evennode.com');
-    //let reconnectInterval;
+    
     // Set an event listener for the 'close' event
     ws.current.addEventListener('close', () => {
       console.log('WebSocket connection closed');
@@ -91,8 +89,6 @@ export default PlaceOrder = ({offline}) => {
 
     ws.current.addEventListener('error', (error) => {
       console.log('WebSocket connection error ', error );
-      // Attempt to reconnect to the WebSocket server
-      // Set an interval to try to reconnect every 5 seconds
     });
 
      // Set an event listener for the 'message' event
@@ -104,18 +100,6 @@ export default PlaceOrder = ({offline}) => {
       // Clear the reconnection interval when the connection is established
       clearInterval(reconnectInterval);
     });
-
-    // // Function to attempt to reconnect to the WebSocket server
-    // const reconnect = () => {
-    //   console.log('Trying to reconnect...');
-    //   ws.current = new WebSocket('ws://medichat.eu-4.evennode.com');
-    //   ws.current.addEventListener('open', () => {
-    //     console.log('Reconnected to WebSocket server');
-    //     // Clear the reconnection interval when the connection is established
-    //     clearInterval(reconnectInterval);
-    //   });
-    //   ws.current.addEventListener('message', updateMessageList);
-    // };
 
     return () => {
       // Clean up the WebSocket connection when the component unmounts
@@ -130,39 +114,25 @@ export default PlaceOrder = ({offline}) => {
         return newMessageCount + 1;
       })
     }
-    handleNewMessage();
   }, [messagesList]);
-
-  useEffect(() => {
-    AppState.addEventListener('change', handleAppStateChange);
-  
-    return () => {
-      AppState.removeEventListener('change', handleAppStateChange);
-    };
-  }, []);
 
    // Function to attempt to reconnect to the WebSocket server
    const reconnect = () => {
     console.log('Trying to reconnect...');
     ws.current = new WebSocket('ws://medichat.eu-4.evennode.com');
+    ws.current.addEventListener('close', () => {
+      console.log('WebSocket connection closed');
+      reconnectInterval = setInterval(reconnect, 5000);
+    });
     ws.current.addEventListener('open', () => {
       console.log('Reconnected to WebSocket server');
-      // Clear the reconnection interval when the connection is established
       clearInterval(reconnectInterval);
+    });
+    ws.current.addEventListener('error', (error) => {
+      console.log('WebSocket connection error inside reconnect', error );
     });
     ws.current.addEventListener('message', updateMessageList);
   };
-
-  const handleAppStateChange = (nextAppState) => {
-    console.log('App has come to the foreground!', appState, nextAppState);
-    if (nextAppState === 'background') {
-      ws.current.close();
-      reconnect();
-      console.log('App closed');
-    }
-    console.log('App has come to the foregrounds!', appState, nextAppState);
-    setAppState(nextAppState);
-  }
 
   const updateMessageList = (event) => {
     console.log("Message event: ", JSON.parse(event.data), messagesList); 
@@ -170,12 +140,6 @@ export default PlaceOrder = ({offline}) => {
       return [...messagesList, JSON.parse(event.data)];
     })
   }
-
-  const handleNewMessage = () => {
-    if(chatModalVisibility) {
-      listRef?.current?.scrollToEnd({ animated: false });
-    }
-  };
 
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
@@ -315,7 +279,6 @@ export default PlaceOrder = ({offline}) => {
         hideChatModal = {() => setChatModalVisibility(false)}
         resetNewMessageCount = {() => setNewMessageCount(0)}
         webSocket = {ws}
-        messageRef = {listRef}
         messagesList = {messagesList}
         newMessageCount = {newMessageCount} 
         offline = {offline}

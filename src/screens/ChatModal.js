@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
 },
 });
 
-export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocket, messageRef, messagesList, resetNewMessageCount, newMessageCount, offline}) => { 
+export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocket, messagesList, resetNewMessageCount, newMessageCount, offline}) => { 
 
   const [isFilterModalVisible, setFilterModalVisible] = useState(false);
   const [isSearchBarVisible, setSearchBarVisible] = useState(false);
@@ -138,6 +138,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   const [fadeAnim] = useState(new Animated.Value(0));
   const [hasDataLongerThanScreen, setHasDataLongerThanScreen] = useState(false);
   const input = useRef(null);
+  const messageRef = useRef(null);
   const [searchBarHeight] = useState(new Animated.Value(0));
   const [searchBarWidth] = useState(new Animated.Value(0));
   const deviceId = DeviceInfo.getUniqueId()._j;
@@ -167,11 +168,12 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
     if(chatModalVisible) {
      
      if(filteredData?.length > 0 && newMessageCount !== 0) {
-      messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false});
-     }
-     if(newMessageCount === 0) {
-      messageRef?.current?.scrollToEnd({ animated: false });
-     }
+      console.log("Outside chat modal and receiving new messages");
+      setTimeout(() => messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false}), 1000);
+      return;
+    }
+      console.log("Inside chat modal and receiving new messages");
+      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: false }), 500);
     }
   }, [chatModalVisible, messageRef, newMessageCount, filteredData]);
 
@@ -182,12 +184,13 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
       item.name?.toLowerCase().includes(lowerCaseSearchInput) ||
       item.contact?.toLowerCase().includes(lowerCaseSearchInput) ||
       item.itemsPlaced?.toLowerCase().includes(lowerCaseSearchInput) ||
-      item.delivery?.toLowerCase().includes(lowerCaseSearchInput) 
+      new Date(item.delivery).toLocaleDateString()?.includes(lowerCaseSearchInput) 
     ).filter((item) => {
       if(filterOption === 'all' || filterOption === item.type) return item 
       if(filterOption === 'myOrder' && item.type === 'order' && item.deviceId === deviceId) return item
       if(filterOption === 'myMessage' && item.type === 'message' && item.deviceId === deviceId) return item
     });
+    console.log('Filtered messages now: ', filteredMessages);
     setFilteredData(filteredMessages);
   }, [searchInput, messagesList, filterOption]);
 
@@ -217,7 +220,8 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
   const handleNewMessage = () => {
     if(chatModalVisible) {
-      messageRef?.current?.scrollToEnd({ animated: false });
+      console.log("Inside chat modal and tapping scroll to bottom or opening keyboard");
+      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: false }), 500);
     }
   };
 
