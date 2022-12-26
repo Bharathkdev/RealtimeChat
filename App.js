@@ -1,241 +1,108 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, TextInput, Button, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import Modal from 'react-native-modal';
-import Icon from 'react-native-vector-icons/Ionicons'
-import WebSocket from 'react-native-websocket';
-import DeviceInfo from 'react-native-device-info';
-
-const App = () => {
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState('');
-  const [newMessageCount, setNewMessageCount] = useState(0);
-  const [customerName, setCustomerName] = useState('');
-  const [mobileContact, setMobileContact] = useState('');
-  const [items, setItems] = useState('');
-  const [deliveryDate, setDeliveryDate] = useState('');
-  const ws = useRef(null);
-  const input = useRef(null);
-  const listRef = useRef(null);
-
-
-  const deviceId = DeviceInfo.getUniqueId()._j;
-  const MOBILE_NUMBER_REGEX = /^\d{10}$/;
-
-  useEffect(() => {
-    if(isModalVisible) {
-     input.current.focus();
-    }
-  }, [isModalVisible]);
-
-  const handleNewMessage = () => {
-    if(isModalVisible) {
-      listRef.current.scrollToEnd({ animated: true });
-    }
-  };
-
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-    setNewMessageCount(0);
-  };
-
-  const handleMessage = (e) => {
-    setMessage(e.nativeEvent.text);
-  };
-
-  const sendMessage = () => {
-    ws.current.send(JSON.stringify({id: new Date().getTime(), message, deviceId, time: new Date()}));
-    setMessage('');
-  };
-
-  const placeOrder = (name, contact, itemsPlaced, delivery) => {
-    ws.current.send(JSON.stringify({id: new Date().getTime(), name, contact, itemsPlaced, delivery, deviceId, time: new Date()}));
-    setCustomerName('');
-    setMobileContact('');
-    setItems('');
-    setDeliveryDate('');
-  }
-
-  const handleCustomerName = (e) => {
-    setCustomerName(e.nativeEvent.text);
-  };
-
-  const handleMobileContact = (e) => {
-    //if (MOBILE_NUMBER_REGEX.test(text)) {
-      setMobileContact(e.nativeEvent.text);
-    //}
-  };
-
-  const handleItems = (e) => {
-    setItems(e.nativeEvent.text);
-  };
-
-  const handleDeliveryDate = (e) => {
-    setDeliveryDate(e.nativeEvent.text);
-  };
-
-  return (
-    <View>
-      <View>
-        <TextInput
-          placeholder="Customer Name"
-          value={customerName}
-          onChange={handleCustomerName}
-        />
-        <TextInput
-          placeholder="Mobile Contact"
-          value={mobileContact}
-          keyboardType="phone-pad"
-          onChange={handleMobileContact}
-        />
-        <TextInput
-          placeholder="Items to be ordered"
-          value={items}
-          onChange={handleItems}
-        />
-        <TextInput
-          placeholder="Expected delivery date/time"
-          value={deliveryDate}
-          onChange={handleDeliveryDate}
-        />
-      </View>
-      <View style = {{margin: 20}}>
-        <Button title="Place order" onPress={placeOrder.bind(this, customerName, mobileContact, items, deliveryDate)} />
-      </View>
-      <View style = {{margin: 20}}>
-        <Button title="Open Chat" onPress={toggleModal} />
-      </View>
-      <Text>Message Count: {newMessageCount}</Text>
-      <Modal 
-        isVisible={isModalVisible} 
-        backdropTransitionOutTiming={0}
-        animationIn="slideInUp" 
-        animationOut="slideOutDown"
-        animationInTiming={500} 
-        animationOutTiming={500} 
-      >
-        <View style={styles.modal}>
-          <View style = {styles.modalHeader}>
-            <TouchableOpacity onPress={toggleModal} style = {styles.closeButton}>
-              <Icon name="close" color="black" size={25}/>
-            </TouchableOpacity>
-          </View>  
-          <View style={styles.list}>
-            {messages ? 
-            <FlatList
-            ref={listRef}
-            data={messages}
-            keyExtractor={item => item.id}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => 
-              <View style={{flexDirection: 'row', justifyContent: item.deviceId === deviceId ? 'flex-end' : 'flex-start', paddingLeft: item.deviceId === deviceId ? 20 : 0, paddingRight: item.deviceId === deviceId ? 0 : 20}}>
-                <View style={{...styles.messageView,  backgroundColor: item.deviceId === deviceId ? '#B1D8B7' : 'white' }}>
-                  <View style = {styles.messageHeaderView}>
-                    <Text style = {styles.messageNameText}>{(item.name && item.deviceId !== deviceId) ? item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name : (item.deviceId === deviceId) ? 'You' : 'Anonymous'}</Text>
-                    <Text>{new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()}</Text>
-                  </View>
-                  {item.name ? 
-                      <>
-                        <Text style = {styles.orderDetailsHeaderText}>{item.name} order details:</Text>
-                        <Text style = {styles.messageText}>
-                          Customer Name: {item.name}
-                          {"\n"}
-                          Mobile: {item.contact}
-                          {"\n"}
-                          Order Items: {item.itemsPlaced}
-                          {"\n"}
-                          Expected Delivery date: {item.delivery}
-                        </Text> 
-                      </> : 
-                      <Text style = {styles.messageText}>{item.message}</Text>
-                    }
-                </View> 
-              </View>
-            }
-          />: null}
-        </View>
-            <View style = {styles.modalFooter}>
-              <TextInput ref={input} style = {styles.messageInput} placeholder="Type your message here..." value={message} onChange={handleMessage} />
-              <TouchableOpacity disabled={message ? false : true} style = {{opacity: message ? 1 : 0.3}} onPress={sendMessage}>
-                <Icon name="send" color="black" size={25}/>
-              </TouchableOpacity>
-            </View>
-        </View>
-      </Modal>
-      <WebSocket
-        ref={ws}
-        url="wss://251b-49-206-114-174.in.ngrok.io"
-        onMessage={(event) => {
-          console.log("Message event: ", JSON.parse(event.data), messages); 
-          setMessages([...messages, JSON.parse(event.data)]);
-          if(!isModalVisible) {
-            setNewMessageCount(newMessageCount + 1);
-          }
-          handleNewMessage();
-        }
-        }
-      />
-    </View>
-  );
-};
+import React, {useEffect, useState, useRef} from 'react';
+import { StyleSheet, Animated, Text, SafeAreaView} from 'react-native';
+import PlaceOrder from './src/screens/PlaceOrder';
+import NetInfo from "@react-native-community/netinfo";
+import LottieSplashScreen from "react-native-lottie-splash-screen";
+import { moderateScale } from 'react-native-size-matters';
+import colors from './src/common/colors';
+import strings from './src/common/strings';
+import ErrorBoundaryComponent from './src/common/ErrorBoundary/ErrorBoundaryComponent';
 
 const styles = StyleSheet.create({
-  modal: {
+  container: {
     flex: 1,
-    backgroundColor: 'lightblue',
-    borderRadius: 10,
-    overflow: 'hidden',
-    padding: 16
+    backgroundColor: colors.background
   },
-  closeButton: {
-    padding: 8
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+  banner: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: moderateScale(50),
     alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: moderateScale(20),
+    zIndex: 2,    //to make the banner fixed at the top and the scroll view content go behind it when scrolled
   },
-  modalFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  bannerText: {
+    color: colors.defaultLight, 
+    fontSize: moderateScale(16),
+    fontFamily: 'Poppins-SemiBold',
   },
-  messageInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    marginRight: 10,
-    backgroundColor: 'white',
-  },
-  list: {
-    flex: 1,
-    marginVertical: 20,
-  },
-  messageView: {
-    padding: 10, 
-    borderRadius: 10,
-    marginBottom: 15,
-    justifyContent: 'flex-end',
-  },
-  messageText: {
-    color: 'black',
-    fontSize: 15
-  },
-  orderDetailsHeaderText: {
-    fontWeight: 'bold',
-  },
-  messageHeaderView: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  messageNameText: {
-    color: 'green', 
-    fontSize: 15, 
-    paddingBottom: 2, 
-    paddingRight: 15,
-  }
 });
 
-export default App;
+export default App = () => {
+  const [banner] = useState(new Animated.Value(0));
+  const [isOffline, setOfflineStatus] = useState(false);
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    const removeNetInfoSubscription = NetInfo.addEventListener((state) => {
+      const offline = !(state.isConnected && state.isInternetReachable);
+      setOfflineStatus(offline);
+    });
+  
+    return () => removeNetInfoSubscription();
+  }, []);
+  
+  // To hide Lottie splash screen
+  useEffect(() => {
+    LottieSplashScreen.hide();
+  }, []);
+
+  // To animate network banner
+  useEffect(() => {
+    if (isInitialMount?.current) {
+      isInitialMount.current = false;
+      if(isOffline) {
+        Animated.timing(banner, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }).start()
+      } 
+    } else {
+      if(isOffline) {
+        Animated.timing(banner, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }).start()
+      } else {
+        Animated.timing(banner, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+          }).start(() => {
+              Animated.timing(banner, {
+                toValue: 0,
+                duration: 1000,
+                useNativeDriver: true,
+          }).start()
+        })
+      }
+    }
+  }, [isOffline]);
+
+  const bannerStyle = {
+    transform: [
+    {
+      translateY: banner.interpolate({
+        inputRange: [0, 1],
+        outputRange: [moderateScale(-50), 0],
+      }),
+    }
+  ]
+  }; 
+
+  return (
+    <ErrorBoundaryComponent>
+      <SafeAreaView style = {styles.container}>
+        <Animated.View style={[styles.banner, bannerStyle, { backgroundColor: isOffline ? colors.networkBanner.offline : colors.networkBanner.online}]}>
+          <Text style={styles.bannerText}>{isOffline ? strings.App.offline : strings.App.online}</Text>
+        </Animated.View>
+        <PlaceOrder offline = {isOffline}/>
+      </SafeAreaView>
+    </ErrorBoundaryComponent>
+  );
+};

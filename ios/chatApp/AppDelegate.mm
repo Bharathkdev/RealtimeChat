@@ -3,7 +3,7 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
-
+#import "RNSplashScreen.h"
 #import <React/RCTAppSetupUtils.h>
 
 #if RCT_NEW_ARCH_ENABLED
@@ -15,6 +15,8 @@
 #import <ReactCommon/RCTTurboModuleManager.h>
 
 #import <react/config/ReactNativeConfig.h>
+
+#import "chatApp-Swift.h"
 
 static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
@@ -57,6 +59,24 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  
+    rootViewController.view = rootView;
+
+    self.window.rootViewController = rootViewController;
+    [self.window makeKeyAndVisible];
+
+    Dynamic *t = [Dynamic new];
+    UIView *animationUIView = (UIView *)[t createAnimationViewWithRootView:rootView lottieName:@"splash_lottie"]; 
+    animationUIView.backgroundColor = [UIColor whiteColor]; 
+
+    [RNSplashScreen showLottieSplash:animationUIView inRootView:rootView];
+
+    AnimationView *animationView = (AnimationView *) animationUIView;
+
+    [t playWithAnimationView:animationView];
+
+    [RNSplashScreen setAnimationFinished:true];
+  
   return YES;
 }
 
