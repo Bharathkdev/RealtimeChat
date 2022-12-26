@@ -188,13 +188,13 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   useEffect(() => {
     if(chatModalVisible) {
      
-     if(filteredData?.length > 0 && newMessageCount !== 0) {
-      setTimeout(() => messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false}), 1000);
-      return;
+      if(filteredData?.length > 0 && newMessageCount !== 0) {
+        messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false});
+        return;
+      }
+      messageRef?.current?.scrollToIndex({index: filteredData?.length - 1, animated: false});
     }
-      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: false }), 500);
-    }
-  }, [chatModalVisible, messageRef, newMessageCount, filteredData]);
+  }, [chatModalVisible, filteredData, newMessageCount]);
 
   const fadeIn = () => {
     Animated.timing(fadeAnim, {
@@ -222,7 +222,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
   const handleNewMessage = () => {
     if(chatModalVisible) {
-      setTimeout(() => messageRef?.current?.scrollToEnd({ animated: false }), 500);
+      messageRef?.current?.scrollToIndex({index: filteredData?.length - 1, animated: false});
     }
   };
 
@@ -376,9 +376,17 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
             <FlatList
               ref={messageRef}
               onScroll={handleScroll}
-              onScrollToIndexFailed={(info) => {
-                console.log(`Failed to scroll to index ${JSON.stringify(info)}.`);
-              }}
+              removeClippedSubviews
+              onScrollToIndexFailed={(error) => {
+                console.log(`Failed to scroll to index ${JSON.stringify(error)}.`);
+                messageRef.current.scrollToOffset({ offset: error.averageItemLength * error.index, animated: false });
+                  setTimeout(() => {
+                    if (filteredData.length !== 0 && messageRef.current !== null) {
+                      messageRef.current.scrollToIndex({ index: error.index, animated: false });
+                    }
+                  }, 100);
+                }
+              }
               data={filteredData}
               keyExtractor={item => item.id}
               showsVerticalScrollIndicator={false}
@@ -421,7 +429,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
                 : 
                 null
               }
-              <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder={strings.ChatModal.messagePlaceHolder} value={newMessage} onChange={handleMessage} />
+              <TextInput ref={input} style = {styles.messageInput} placeholder={strings.ChatModal.messagePlaceHolder} value={newMessage} onChange={handleMessage} />
             </View>
             <TouchableOpacity disabled={(newMessage && !offline ) ? false : true} style = {{opacity: (newMessage && !offline ) ? 1 : 0.3}} onPress={sendMessage}>
               <Icon name="send" color = {colors.primary} size = {moderateScale(25)}/>
