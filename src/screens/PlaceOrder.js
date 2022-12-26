@@ -9,6 +9,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import NameModal from './NameModal';
 import colors from '../common/colors';
+import strings from '../common/strings';
 
 const styles = StyleSheet.create({
   containerStyle: {
@@ -146,7 +147,7 @@ export default PlaceOrder = ({offline}) => {
   const placeOrder = (name, contact, itemsPlaced, delivery) => {
     if(!offline) {
       ws.current.send(JSON.stringify({id: new Date().getTime(), type: 'order', name, userName, contact, itemsPlaced, delivery, deviceId: DeviceInfo.getUniqueId()._j, time: new Date().getTime()}));
-      Alert.alert('Successful', 'Order placed successfully!')
+      Alert.alert(strings.PlaceOrder.successful, strings.PlaceOrder.orderSuccess)
     }
   }
 
@@ -167,12 +168,12 @@ export default PlaceOrder = ({offline}) => {
           }}      
           validationSchema = {
             Yup.object().shape({
-              customerName: Yup.string().required('Required'),
+              customerName: Yup.string().required(strings.PlaceOrder.required),
               phoneNumber: Yup.string()
-                .required('Required')
-                .min(10, 'Enter a valid phone number')
-                .matches(/^\d+$/, 'Enter a valid phone number'),
-              items: Yup.string().required('Required'),
+                .required(strings.PlaceOrder.required)
+                .min(10, strings.PlaceOrder.phoneNumberValidation)
+                .matches(/^\d+$/, strings.PlaceOrder.phoneNumberValidation),
+              items: Yup.string().required(strings.PlaceOrder.required),
               deliveryDate: Yup.string(),
             })
           }
@@ -188,9 +189,9 @@ export default PlaceOrder = ({offline}) => {
               >
               <View style={styles.containerStyle}>
                 <View>
-                  <Label title={'Place your Order'} labelStyle = {styles.titleStyle}/>
+                  <Label title={strings.PlaceOrder.title} labelStyle = {styles.titleStyle}/>
                   <TextInputWithLabel
-                    label = "Customer Name"
+                    label = {strings.PlaceOrder.customerName}
                     value = {values.customerName}
                     returnKeyType = "next"
                     onSubmitEditing={() => {
@@ -204,7 +205,7 @@ export default PlaceOrder = ({offline}) => {
                   />
                   <TextInputWithLabel
                     ref={secondInputRef}
-                    label = "Phone Number"
+                    label = {strings.PlaceOrder.phoneNumber}
                     value = {values.phoneNumber}
                     keyboardType = "phone-pad"
                     returnKeyType = "next"
@@ -219,7 +220,7 @@ export default PlaceOrder = ({offline}) => {
                   />
                   <TextInputWithLabel
                     ref = {thirdInputRef}
-                    label = "Items to be ordered"
+                    label = {strings.PlaceOrder.items}
                     value = {values.items}
                     returnKeyType = "done"
                     onChangeText={handleChange("items")}
@@ -229,7 +230,7 @@ export default PlaceOrder = ({offline}) => {
                   />
                   
                   <DatePicker
-                    label = "Expected Delivery Date"
+                    label = {strings.PlaceOrder.deliveryDate}
                     viewStyle = {styles.textInputViewStyle}
                     value = {values.deliveryDate}
                     mode = {"date"}
@@ -240,7 +241,7 @@ export default PlaceOrder = ({offline}) => {
                 </View>
                 <View style = {{marginVertical: moderateScale(10)}}>
                   <CustomButton 
-                    title = "Place order" 
+                    title = {strings.PlaceOrder.placeOrder}
                     disableButton = {!isValid}
                     onPress={() => {
                       placeOrder(

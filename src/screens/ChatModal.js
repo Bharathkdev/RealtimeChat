@@ -8,6 +8,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from "../common/colors";
 import { Label } from '../common/components';
+import strings from "../common/strings";
 
 const styles = StyleSheet.create({
   modal: {
@@ -221,7 +222,6 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
   const handleNewMessage = () => {
     if(chatModalVisible) {
-      console.log("Inside chat modal and tapping scroll to bottom or opening keyboard");
       setTimeout(() => messageRef?.current?.scrollToEnd({ animated: false }), 500);
     }
   };
@@ -307,7 +307,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   // To handle sender and receiver user name
   const handleUserName = (userDeviceId, messageSentBy) => {
     if(userDeviceId === deviceId) {
-      return 'You';
+      return strings.ChatModal.you;
     }
     if(messageSentBy) {
       if(messageSentBy.length > 15) {
@@ -316,7 +316,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
         return messageSentBy;
       } 
     } else {
-      return 'Anonymous';
+      return strings.ChatModal.anonymous;
     }
   }
 
@@ -360,7 +360,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
                     autoFocus
                     value={searchInput}
                     onChangeText={setSearchInput}
-                    placeholder="Search"
+                    placeholder= {strings.ChatModal.searchPlaceHolder}
                     style={styles.searchBarInput}
                   />
                 </Animated.View> 
@@ -392,8 +392,8 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
                   </View>
                   {item.type === 'order' ? 
                     <View>
-                      <Label title={`${item.name} order details`} labelStyle = {[styles.messageTimeText, {color: colors.defaultDark}]}/>
-                      <Label title={`Customer Name: ${item.name} \n Mobile: ${item.contact} \n Order Items: ${item.itemsPlaced} \n Expected Delivery date: ${new Date(item.delivery).toLocaleDateString()}`} labelStyle = {styles.messageText}/> 
+                      <Label title={`${item.name} ${strings.ChatModal.orderDetails}`} labelStyle = {[styles.messageTimeText, {color: colors.defaultDark}]}/>
+                      <Label title={`${strings.ChatModal.customerName}: ${item.name} \n ${strings.ChatModal.mobile}: ${item.contact} \n ${strings.ChatModal.orderItems}: ${item.itemsPlaced} \n ${strings.ChatModal.deliveryDate}: ${new Date(item.delivery).toLocaleDateString()}`} labelStyle = {styles.messageText}/> 
                     </View> 
                     : 
                     <Label title={item.message} labelStyle = {styles.messageText}/>
@@ -404,7 +404,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
             /> 
             : 
             <View style={styles.emptyListView}>
-              <Label title={"No messages/orders yet.\n Please send a message or place an order or try with another filter."} labelStyle = {styles.emptyText}/>
+              <Label title={strings.ChatModal.noData} labelStyle = {styles.emptyText}/>
             </View> 
             }
             <Animated.View style={{...styles.floatingIcon, opacity: fadeAnim}}>
@@ -421,7 +421,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
                 : 
                 null
               }
-              <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder="Type your message here..." value={newMessage} onChange={handleMessage} />
+              <TextInput ref={input} onTouchStart = {handleNewMessage} style = {styles.messageInput} placeholder={strings.ChatModal.messagePlaceHolder} value={newMessage} onChange={handleMessage} />
             </View>
             <TouchableOpacity disabled={(newMessage && !offline ) ? false : true} style = {{opacity: (newMessage && !offline ) ? 1 : 0.3}} onPress={sendMessage}>
               <Icon name="send" color = {colors.primary} size = {moderateScale(25)}/>

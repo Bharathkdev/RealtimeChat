@@ -3,6 +3,7 @@ import { View, StyleSheet, Text } from 'react-native';
 import Modal from 'react-native-modal';
 import { CustomButton, TextInputWithLabel } from '../common/components';
 import { moderateScale } from 'react-native-size-matters';
+import strings from '../common/strings';
  
 const styles = StyleSheet.create({
     textInputViewStyle: {
@@ -45,15 +46,15 @@ export default NameModal = ({nameModalVisible, handleNameSubmit}) => {
         >
             <View style = {styles.nameModal}>
                 <TextInputWithLabel
-                    label = "Name"
+                    label = {strings.NameModal.name}
                     value = {name}
                     onChangeText = {setName}
                     viewStyle = {styles.textInputViewStyle}
                     labelStyle = {styles.labelStyle}
                 />
-                <Text style = {styles.textStyle}>*If not given, your messages and orders will be displayed as Anonymous to others</Text>
+                <Text style = {styles.textStyle}>{strings.NameModal.info}</Text>
                 <CustomButton 
-                    title = "Submit" 
+                    title = {strings.NameModal.submit}
                     onPress={() => handleNameSubmit(name, true)} 
                     buttonStyle={styles.customButtonStyle}
                 />
