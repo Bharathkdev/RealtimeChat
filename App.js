@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
   bannerText: {
     color: 'white', 
     fontSize: moderateScale(16),
-    fontWeight: '500'
+    fontFamily: 'Poppins-SemiBold',
   },
 });
 

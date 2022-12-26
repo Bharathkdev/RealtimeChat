@@ -7,7 +7,6 @@ const styles = StyleSheet.create({
   labelStyle: {
     marginBottom: moderateScale(10),
     fontSize: moderateScale(15),
-    fontWeight: '500',
     color: colors.defaultDark,
     fontFamily: 'Poppins-Medium'
   },
@@ -23,7 +22,7 @@ const styles = StyleSheet.create({
   },
   validationLabelStyle: {
     fontSize: moderateScale(15),
-    fontWeight: '500',
+    fontFamily: 'Poppins-Medium',
     color: colors.error,
     paddingVertical: moderateScale(6)
   },

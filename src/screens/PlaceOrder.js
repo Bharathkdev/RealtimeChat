@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     justifyContent:'space-between'
   },
   titleStyle: {
-    fontWeight: '600', 
+    fontFamily: 'Poppins-SemiBold',
     paddingBottom: moderateScale(30), 
     fontSize: moderateScale(22),
     alignSelf: 'center',

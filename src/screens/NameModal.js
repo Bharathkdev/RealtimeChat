@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     },
     labelStyle: {
         textAlign: 'center',
-        fontWeight: '500',
+        fontFamily: 'Poppins-Medium',
         fontSize: moderateScale(17)
     },
     nameModal: {
