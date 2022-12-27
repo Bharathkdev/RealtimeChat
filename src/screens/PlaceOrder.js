@@ -89,6 +89,7 @@ export default PlaceOrder = ({offline}) => {
       console.log('WebSocket connection closed');
       // Attempt to reconnect to the WebSocket server
       // Set an interval to try to reconnect every second
+      clearInterval(reconnectInterval);
       reconnectInterval = setInterval(reconnect, 1000);
     });
 
@@ -126,14 +127,16 @@ export default PlaceOrder = ({offline}) => {
 
    // Function to attempt to reconnect to the WebSocket server
    const reconnect = () => {
+    clearInterval(reconnectInterval)  
     console.log('Trying to reconnect...');
     ws.current = new WebSocket('ws://medichat.eu-4.evennode.com');
     ws.current.addEventListener('close', () => {
       console.log('WebSocket connection closed inside reconnect');
+      clearInterval(reconnectInterval);
       reconnectInterval = setInterval(reconnect, 1000);
     });
     ws.current.addEventListener('open', () => {
-      console.log('Reconnected to WebSocket server');
+      console.log('Reconnected to WebSocket server inside reconnect');
       clearInterval(reconnectInterval);
     });
     ws.current.addEventListener('error', (error) => {
@@ -174,9 +177,15 @@ export default PlaceOrder = ({offline}) => {
             items: '',
             deliveryDate: ''
           }}
-          onSubmit = {(values, {resetForm}) => {
+          onSubmit = {(values, {resetForm, setValues}) => {
             resetForm({values: ''});
-          }}      
+            setValues({
+              customerName: '',
+              phoneNumber: '',
+              items: '',
+              deliveryDate: ''
+            })
+          }}     
           validationSchema = {
             Yup.object().shape({
               customerName: Yup.string().required(strings.PlaceOrder.required),

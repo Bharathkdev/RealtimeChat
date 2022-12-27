@@ -59,7 +59,8 @@ const styles = StyleSheet.create({
     marginVertical: moderateScale(10),
   },
   closeButton: {
-    padding: moderateScale(8)
+    paddingVertical: moderateScale(8),
+    paddingRight: moderateScale(8)
   },
   messageView: {
     padding: moderateScale(8), 
@@ -367,7 +368,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
                 )}
               </Modal>
 
-              <TouchableOpacity style = {{marginLeft: 20}} onPress={searchBarHandler}>
+              <TouchableOpacity style = {{marginLeft: moderateScale(15)}} onPress={searchBarHandler}>
                   <MaterialIcon name= {isSearchBarVisible ? "search-off" : "search"} color={colors.defaultDark} size={moderateScale(25)}/>
               </TouchableOpacity> 
 
