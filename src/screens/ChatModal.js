@@ -190,11 +190,11 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
   useEffect(() => {
     if(chatModalVisible && modalOpenComplete) {
       if(filteredData?.length > 0 && newMessageCount !== 0) {
-        messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: false});
+        messageRef?.current?.scrollToIndex({index: filteredData?.length - newMessageCount, animated: true});
         resetNewMessageCount();
         return;
       }
-      messageRef?.current?.scrollToIndex({index: filteredData?.length - 1, animated: false});
+      messageRef?.current?.scrollToIndex({index: filteredData?.length - 1, animated: true});
     }
   }, [chatModalVisible, filteredData, modalOpenComplete]);
 
@@ -232,7 +232,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
 
   const handleNewMessage = () => {
     if(chatModalVisible) {
-      messageRef?.current?.scrollToIndex({index: filteredData?.length - 1, animated: false});
+      messageRef?.current?.scrollToIndex({index: filteredData?.length - 1, animated: true});
     }
   };
 
@@ -396,10 +396,10 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               onScroll={handleScroll}
               removeClippedSubviews
               onScrollToIndexFailed={(error) => {
-                messageRef.current.scrollToOffset({ offset: error.averageItemLength * error.index, animated: false });
+                messageRef.current.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
                   setTimeout(() => {
                     if (filteredData.length !== 0 && messageRef.current !== null) {
-                      messageRef.current.scrollToIndex({ index: error.index, animated: false });
+                      messageRef.current.scrollToIndex({ index: error.index, animated: true });
                     }
                   }, 100);
                 }
