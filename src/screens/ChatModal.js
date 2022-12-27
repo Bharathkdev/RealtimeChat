@@ -395,7 +395,6 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               onScroll={handleScroll}
               removeClippedSubviews
               onScrollToIndexFailed={(error) => {
-                console.log(`Failed to scroll to index ${JSON.stringify(error)}.`);
                 messageRef.current.scrollToOffset({ offset: error.averageItemLength * error.index, animated: false });
                   setTimeout(() => {
                     if (filteredData.length !== 0 && messageRef.current !== null) {
