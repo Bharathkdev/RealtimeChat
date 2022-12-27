@@ -239,6 +239,8 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
     hideChatModal();
     setSearchBarVisible(false);
     setSearchInput("");
+    setFilterModalVisible(false);
+    setFilterOption('all');
   }
 
   const handleMessage = (e) => {
@@ -354,6 +356,7 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
               <Modal 
                 style={styles.filterModal}
                 visible={isFilterModalVisible}
+                onBackButtonPress={closeModal}
                 onBackdropPress={() => {setFilterModalVisible(!isFilterModalVisible)}}>
                 {filters.map(filter => (
                   <TouchableOpacity activeOpacity={0.7} key={filter?.option} style={{backgroundColor: filterOption === filter?.value ? colors.filterSelection : colors.base}} onPress={() => handleFilterOptions(filter?.value)}>
