@@ -289,12 +289,12 @@ export default ChatModal = ({userName, chatModalVisible, hideChatModal, webSocke
       // Animate the search bar's height to 40 (expanded)
       Animated.parallel([
         Animated.timing(searchBarHeight, {
-          toValue: 40, // 40 is the desired height of the search bar
+          toValue: moderateScale(37), // 37 is the desired height of the search bar
           duration: 100, // duration of the animation in milliseconds
           useNativeDriver: false,
         }),
         Animated.timing(searchBarWidth, {
-          toValue: 210, // 210 is the desired width of the search bar
+          toValue: moderateScale(190), // 190 is the desired width of the search bar
           duration: 100, 
           useNativeDriver: false,
         })
